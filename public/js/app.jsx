@@ -127,7 +127,7 @@ var LawsPg = React.createClass({
 
   componentWillMount: function () {
     // bind laws
-    var ref = firebase.database().ref("laws");
+    var ref = firebase.database().ref("/laws");
     this.bindAsArray(ref, "laws");
   },
 
@@ -162,7 +162,7 @@ var LawPg = React.createClass({
 
   save: function (ev) {
     ev.preventDefault();
-    firebase.database().ref("laws/" + this.state.law.id).update(this.refs.editLawForm.getValue());
+    firebase.database().ref("/laws/" + this.state.law.id).update(this.refs.editLawForm.getValue());
     this.context.router.push('/laws');
   },
 
@@ -197,7 +197,7 @@ var LawPg = React.createClass({
   componentWillMount: function () {
     // bind law
     if (this.props.params.lawId) {
-      var ref = firebase.database().ref("laws/" + this.props.params.lawId);
+      var ref = firebase.database().ref("/laws/" + this.props.params.lawId);
       this.bindAsObject(ref, "law");
     }
   }
