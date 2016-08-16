@@ -45,6 +45,7 @@ const LawSchema = t.struct({
   "countryID": t.String,
   "countryLabel": t.String,
   "adopted_from": t.maybe(t.list(t.String)),
+  "amends": t.maybe(t.list(t.String)),
   "revokes": t.maybe(t.list(t.String)),
   "signatories": t.maybe(t.list(SignatorySchema)),
   "location": LocationSchema,
