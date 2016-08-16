@@ -13,8 +13,8 @@ const SignatorySchema = t.struct({
   org: t.String
 });
 const LocationSchema = t.struct({
-  lat: t.Number,
-  lon: t.Number
+  lat: t.maybe(t.Number),
+  lon: t.maybe(t.Number)
 });
 const FeeSchema = t.struct({
   s: t.maybe(t.Number),
@@ -274,10 +274,24 @@ var Navi = function (props) {
 };
 
 var MapLayout = React.createClass({
+  mixins: [ReactFireMixin],
+
+  getInitialState: function () {
+    return {
+      laws: []
+    }
+  },
+
   render: function () {
     return (
       <div id="map"></div>
     );
+  },
+
+  componentWillMount: function () {
+    // bind laws
+    var ref = firebase.database().ref("/laws");
+    this.bindAsArray(ref, "laws");
   },
 
   componentDidMount: function () {
@@ -286,6 +300,28 @@ var MapLayout = React.createClass({
         container: 'map',
         style: 'mapbox://styles/gbhatnag/ciql39wck0035bgm2dfj108tt'
     });
+
+    var self = this;
+    setTimeout(function () {
+      self.state.laws.forEach(function (law) {
+        if (law.location && law.location.lon && law.location.lat) {
+          var lng = law.location.lon;
+          var lat = law.location.lat;
+          if (lng >= 90 || lng <= -90) {
+            console.log("whoops: " + law.citation);
+            firebase.database().ref("/laws/" + law.id).update({
+              location: null
+            });
+          } else {
+            var marker = new mapboxgl.Marker()
+              .setLngLat([lng, lat])
+              .addTo(map);
+          }
+        } else {
+          console.log("Law " + law.citation + " does not have location");
+        }
+      });
+    }, 5000);
   }
 });
 
