@@ -258,6 +258,9 @@ var Navi = function (props) {
         <div className="collapse navbar-collapse" id="adl-nav">
           <ul className="nav navbar-nav">
             <li>
+              <Link to="/map" activeClassName="active">Map</Link>
+            </li>
+            <li>
               <Link to="/drums" activeClassName="active">Drums</Link>
             </li>
             <li>
@@ -269,6 +272,14 @@ var Navi = function (props) {
     </nav>
   );
 };
+
+var MapLayout = React.createClass({
+  render: function () {
+    return (
+      <div id="map"></map>
+    );
+  }
+});
 
 var MainLayout = React.createClass({
   render: function () {
@@ -287,6 +298,7 @@ ReactDOM.render((
   <Router history={browserHistory}>
     <Route component={MainLayout}>
       <Route path="/" component={HomePg} />
+      <Route path="/map" component={MapLayout} />
       <Route path="/drums" component={DrumsPg} />
       <Route path="/laws" component={LawsPg} />
       <Route path="/laws/:lawId" component={LawPg} />
