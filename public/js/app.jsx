@@ -48,7 +48,7 @@ const LawSchema = t.struct({
   "amends": t.maybe(t.list(t.String)),
   "revokes": t.maybe(t.list(t.String)),
   "signatories": t.maybe(t.list(SignatorySchema)),
-  "location": LocationSchema,
+  "location": t.maybe(LocationSchema),
   "drums": t.maybe(t.list(DrumSchema))
 });
 const LawSchemaOptions = {

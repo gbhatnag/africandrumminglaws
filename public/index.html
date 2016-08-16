@@ -18,13 +18,12 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/react-router/2.6.1/ReactRouter.js"></script>
     <script src="https://www.gstatic.com/firebasejs/3.2.1/firebase.js"></script>
     <script>
-      var config = {
+      firebase.initializeApp({
         apiKey: "AIzaSyBcbMGVPYSdgEi4WZhlxoyyR0-YqwCP0HM",
         authDomain: "africandrumminglaws.firebaseapp.com",
         databaseURL: "https://africandrumminglaws.firebaseio.com",
         storageBucket: "africandrumminglaws.appspot.com",
-      };
-      firebase.initializeApp(config);
+      });
     </script>
     <script src="https://cdn.firebase.com/libs/reactfire/1.0.0/reactfire.min.js"></script>
     <script src="https://npmcdn.com/tcomb-form@0.9.10/dist/tcomb-form.js"></script>
