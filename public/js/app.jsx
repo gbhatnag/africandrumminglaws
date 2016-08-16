@@ -276,7 +276,7 @@ var Navi = function (props) {
 var MapLayout = React.createClass({
   render: function () {
     return (
-      <div id="map"></map>
+      <div id="map"></div>
     );
   }
 });
