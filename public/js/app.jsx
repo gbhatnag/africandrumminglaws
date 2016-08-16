@@ -278,6 +278,14 @@ var MapLayout = React.createClass({
     return (
       <div id="map"></div>
     );
+  },
+
+  componentDidMount: function () {
+    mapboxgl.accessToken = 'pk.eyJ1IjoiZ2JoYXRuYWciLCJhIjoiY2lxbDMzeDdnMDAxcGVpa3ZqOWFtNTNpZyJ9.6zSnoYwnb85A8DS107TSnA';
+    var map = new mapboxgl.Map({
+        container: 'map',
+        style: 'mapbox://styles/gbhatnag/ciql39wck0035bgm2dfj108tt'
+    });
   }
 });
 
