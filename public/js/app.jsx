@@ -4,6 +4,13 @@ var Route = ReactRouter.Route;
 var Link = ReactRouter.Link;
 var browserHistory = ReactRouter.browserHistory;
 
+var app = firebase.initializeApp({
+  apiKey: "AIzaSyBcbMGVPYSdgEi4WZhlxoyyR0-YqwCP0HM",
+  authDomain: "africandrumminglaws.firebaseapp.com",
+  databaseURL: "https://africandrumminglaws.firebaseio.com",
+  storageBucket: "africandrumminglaws.appspot.com",
+});
+
 // Forms and "models"
 const t = TcombForm;
 const Form = t.form.Form;
@@ -288,40 +295,60 @@ var MapLayout = React.createClass({
     );
   },
 
-  componentWillMount: function () {
-    // bind laws
-    var ref = firebase.database().ref("/laws");
-    this.bindAsArray(ref, "laws");
-  },
-
-  componentDidMount: function () {
+  componentDidUpdate: function () {
+    console.log("componentDidUpdate");
+    var self = this;
     mapboxgl.accessToken = 'pk.eyJ1IjoiZ2JoYXRuYWciLCJhIjoiY2lxbDMzeDdnMDAxcGVpa3ZqOWFtNTNpZyJ9.6zSnoYwnb85A8DS107TSnA';
     var map = new mapboxgl.Map({
-        container: 'map',
-        style: 'mapbox://styles/gbhatnag/ciql39wck0035bgm2dfj108tt'
+      container: 'map',
+      style: 'mapbox://styles/gbhatnag/ciql39wck0035bgm2dfj108tt',
+      minZoom: 6,
+      maxZoom: 10,
+      center: [5.036096118841982, 7.28924897406489],
+      zoom: 7.236
     });
 
-    var self = this;
-    setTimeout(function () {
+    var logPosition = function () {
+      console.log("center: " + map.getCenter());
+      console.log("zoom: " + map.getZoom());
+    };
+
+    map.on("load", function (ev) {
       self.state.laws.forEach(function (law) {
         if (law.location && law.location.lon && law.location.lat) {
           var lng = law.location.lon;
           var lat = law.location.lat;
           if (lng >= 90 || lng <= -90) {
-            console.log("whoops: " + law.citation);
+            console.log(law.citation + " lat/lng out of bounds");
             firebase.database().ref("/laws/" + law.id).update({
               location: null
             });
           } else {
-            var marker = new mapboxgl.Marker()
+            var marker = new mapboxgl.Marker()  // TODO account for duplicates
               .setLngLat([lng, lat])
               .addTo(map);
           }
         } else {
-          console.log("Law " + law.citation + " does not have location");
+          console.log(law.citation + " does not have location");
         }
       });
-    }, 5000);
+      $(window).resize(logPosition);
+      map.on("move", logPosition);
+      map.on("zoom", logPosition);
+
+      var popup = new mapboxgl.Popup()
+        .setLngLat([3.348,7.161])
+        .setHTML("<p>Abeokuta District Council</p>")
+        .addTo(map);
+    });
+  },
+
+  componentWillMount: function () {
+    var self = this;
+    $.getJSON(app.options.databaseURL + "/laws.json", function (lawsObj) {
+      var laws = $.map(lawsObj, function (law) { return law; });
+      self.setState({laws: laws});
+    });
   }
 });
 

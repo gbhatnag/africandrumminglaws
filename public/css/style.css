@@ -1,4 +1,15 @@
 main {padding-top: 81px;}
 .navbar-default .navbar-nav>li>a.active {color:#df691a;}
-#map {height:640px; width:960px;}
-.mapboxgl-marker {height:10px; width:10px; background-color:red;}
+#map {height:100%; width:100%; position:fixed; top:40px; left:0;}
+.mapboxgl-marker {
+  height:20px; width:20px; cursor:pointer;
+	-moz-border-radius:10px; -webkit-border-radius:10px; border-radius:10px;
+  background-color: rgba(116,57,43,0.5);
+  border:1px solid #74392b;
+}
+.mapboxgl-marker:hover {
+  background-color: rgba(0,88,38,0.5);
+  border:1px solid #005826;
+  font-weight:bold;
+}
+.mapboxgl-popup {color:#1a1818;}
