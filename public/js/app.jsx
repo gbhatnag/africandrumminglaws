@@ -285,7 +285,8 @@ var MapLayout = React.createClass({
 
   getInitialState: function () {
     return {
-      laws: []
+      laws: [],
+      geo: {}
     }
   },
 
@@ -332,22 +333,88 @@ var MapLayout = React.createClass({
           console.log(law.citation + " does not have location");
         }
       });
+
+      // track map movements and events
       $(window).resize(logPosition);
       map.on("move", logPosition);
       map.on("zoom", logPosition);
+      map.on("click", function (data) {
+        console.log(data.lngLat);
+      });
 
-      var popup = new mapboxgl.Popup()
-        .setLngLat([3.348,7.161])
-        .setHTML("<p>Abeokuta District Council</p>")
-        .addTo(map);
+      // var popup = new mapboxgl.Popup()
+      //   .setLngLat([3.348,7.161])
+      //   .setHTML("<p>Abeokuta District Council</p>")
+      //   .addTo(map);
+
+      // add layers
+      map.addSource('wnprovinces', {
+        type: 'geojson',
+        data: self.state.geo.wnprovinces
+      });
+      map.addLayer({
+        id: 'wnprovinces',
+        type: 'line',
+        source: 'wnprovinces',
+        layout: {
+          'line-join': 'round',
+          'line-cap': 'round'
+        },
+        paint: {
+          'line-color': '#222',
+          'line-width': 1
+        }
+      });
+
+      map.addSource('wnborder', {
+        type: 'geojson',
+        data: self.state.geo.wnborder
+      });
+      map.addLayer({
+        id: 'wnborder',
+        type: 'line',
+        source: 'wnborder',
+        layout: {
+          'line-join': 'round',
+          'line-cap': 'round'
+        },
+        paint: {
+          'line-color': '#222',
+          'line-width': 3
+        }
+      });
+
+      map.addSource('wnprovincelabels', {
+        type: 'geojson',
+        data: self.state.geo.wnprovincelabels
+      });
+      map.addLayer({
+        id: 'wnprovincelabels',
+        type: 'symbol',
+        source: 'wnprovincelabels',
+        layout: {
+          "text-field": "{label}",
+          "text-font": ["Open Sans Bold", "Arial Unicode MS Bold"],
+          "text-size": 11,
+          "text-transform": "uppercase",
+          "text-letter-spacing": 0.05,
+          "text-offset": [0, 1.5],
+          "text-anchor": "bottom"
+        }
+      });
     });
   },
 
   componentWillMount: function () {
     var self = this;
-    $.getJSON(app.options.databaseURL + "/laws.json", function (lawsObj) {
-      var laws = $.map(lawsObj, function (law) { return law; });
-      self.setState({laws: laws});
+    $.getJSON(app.options.databaseURL + "/.json", function (data) {
+      console.log(data);
+      var geo = data.geo;
+      var laws = $.map(data.laws, function (law) { return law; });
+      self.setState({
+        laws: laws,
+        geo: geo
+      });
     });
   }
 });
