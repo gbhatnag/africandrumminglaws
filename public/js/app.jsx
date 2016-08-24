@@ -11,6 +11,10 @@ var app = firebase.initializeApp({
   storageBucket: "africandrumminglaws.appspot.com",
 });
 
+// Create custom event
+var FilterChangeEvent = document.createEvent('Event');
+FilterChangeEvent.initEvent('filterChange', true, true);
+
 // Forms and "models"
 const t = TcombForm;
 const Form = t.form.Form;
@@ -99,7 +103,7 @@ var Laws = React.createClass({
 
   renderLawItem: function (law, i) {
     return (
-      <Link to={"/laws/" + sanitizeCitation(law.citation)}
+      <Link to={"/admin/laws/" + sanitizeCitation(law.citation)}
         key={sanitizeCitation(law.citation)}
         className="list-group-item" activeClassName="active">
         <h4 className="list-group-item-header">
@@ -171,11 +175,11 @@ var LawPg = React.createClass({
   save: function (ev) {
     ev.preventDefault();
     firebase.database().ref("/laws/" + this.state.law.id).update(this.refs.editLawForm.getValue());
-    this.context.router.push('/laws');
+    this.context.router.push('/admin/laws');
   },
 
   cancel: function () {
-    this.context.router.push('/laws');
+    this.context.router.push('/admin/laws');
   },
 
   renderTitle: function (law) {
@@ -239,6 +243,179 @@ var  HomePg = function (props) {
   );
 };
 
+var ResearchPg = function (props) {
+  return (
+    <div>
+      <h2>Bibliography - Drumming Laws in Western Nigeria</h2>
+      <p>The following list of resources pertains to research on colonial era drumming laws in Western Nigeria. These materials provide access to the approximately 100 drumming regulations passed by local governments throughout Western Nigeria from 1956 through 1975. Moreover, this comprehensive bibliography covers areas such as colonial law, customary law, ethnomusicology, anthropology, history, local government and administration, and geography.</p>
+
+      <h3>Colonial Law</h3>
+      <h4>Primary</h4>
+      <p><span className="c2">Annual Volume of the Laws of Western State
+      of Nigeria</span> <span>(Govt. Printer, 1967-1976).</span></p>
+      <p><span className="c2">Legislation of the Western Region of
+      Nigeria</span> <span>(Govt. Printer, 1952-1964).</span></p>
+
+      <h4>Secondary</h4>
+      <p><span className="c2">The Interaction of English Law with
+      Customary Law in Western Nigeria: I &amp; II</span><span>, Journal of
+      African Law, vol. 4, pp. 40-50, 98-114 (Ayaji, 1960).</span></p>
+      <p><span className="c2">The Interaction of English Law with
+      Customary Law in West Africa</span><span>, International &amp; Comparative
+      Law Quarterly, vol. 13, pp. 574-616 (Daniels, 1964).</span></p>
+      <p><span className="c2">Law Libraries in the Western Region/State of
+      Nigeria</span><span>, International Library Review, vol. 20(2), pp. 227-32
+      (Okewusi, 1988).</span></p>
+      <p><span className="c2">Legal Development in Nigeria, 1957-1967: A
+      Practicing Lawyer&rsquo;s View</span><span>, Journal of African Law, vol.
+      11(2), pp. 77-85 (Williams, 1967).</span></p>
+
+      <h3>Customary Law</h3>
+      <p><span className="c2">Customary Law in the New African
+      States</span><span>, Univ. Chicago Committee for Comp. Study of New
+      Nations, Reprint Series, No. 4 (Fallers, 1965).</span></p>
+      <p><span className="c2">Judicial Administration in a Changing
+      Society - Customary Courts in Western Nigeria</span><span>, Law and
+      Politics in Africa, Asia and Latin America, vol. 8(3/4), pp. 435-46
+      (Kayode, 1975).</span></p>
+      <p><span className="c2">The Laws and Customs of the Yoruba
+      People</span><span>&nbsp;(Ajisafe, 2003).</span></p>
+      <p><span className="c2">Native Courts and Native Customary Law in
+      Africa</span><span>, Judicial Advisers&rsquo; Conference, Special
+      Supplement to Journal of African Administration (Great Britain Colonial
+      Office, 1953).</span></p>
+      <p><span className="c2">The Nature of African Customary
+      Law</span><span>&nbsp;(Elias, 1956).</span></p>
+      <p><span className="c2">Restatement of Customary Law in
+      Nigeria</span><span>, Nigerian Institute of Advanced Legal Studies (Azinge,
+      2013).</span></p>
+      <p><span className="c2">A Survey of African Law and Custom with
+      Particular Reference to the Yoruba Speaking Peoples of South-Western
+      Nigeria</span><span>&nbsp;(Oyewo &amp; Olaoba, 1999).</span></p>
+      <p><span className="c2">The Yoruba-Speaking Peoples of the Slave
+      Coast of West Africa</span><span>, ch. 11 on Laws and Customs (Ellis,
+      1974).</span></p>
+
+      <h3>Ethnomusicology</h3>
+      <p><span className="c2">A Descriptive Catalogue of Yoruba Musical
+      Instruments</span><span>, Catholic University of America, Studies in Music
+      No. 37, Ph.D. Dissertation (Thieme, 1969).</span></p>
+      <p><span className="c2">The Drum and Its Role in Yoruba
+      Religion</span><span>, Ademola Journal of Religion in Africa, vol. 18(1),
+      pp. 15-26 (Adegbite, 1988).</span></p>
+      <p><span className="c2">Ogboni Drums</span><span>, African Arts,
+      vol. 6(3), pp. 50-52, 84 (Ojo, 1973).</span></p>
+      <p><span className="c2">The Talking Drums of Nigeria</span><span>,
+      International Library of African Music, vol. 5(4), pp. 36-40 (Akpabot,
+      1975/1976).</span></p>
+      <p><span className="c2">Yoruban Drums</span><span>, Journal of
+      Yoruba and Related Studies, vol. 7, pp. 5-14</span></p>
+
+      <h3>Anthropology</h3>
+      <p><span className="c2">Nigerian Studies, or the Religious and
+      Political System of the Yoruba</span><span>, Cass Library of African
+      Studies, General Studies, No. 48</span><span> (Dennett, 1968).</span></p>
+      <p><span className="c2">The Religion of the
+      Yorubas</span><span>&nbsp;(Lucas, 1948).</span></p>
+      <p><span className="c2">The Sociology of the
+      Yoruba</span><span>&nbsp;(Fadipe, 1970).</span></p>
+
+      <h3>History</h3>
+      <p><span className="c2">An Introduction to Western Nigeria: Its
+      People, Culture, and System of Government</span><span>&nbsp;(Adedeji,
+      1967).</span></p>
+      <p><span className="c2">Chieftaincy Politics and Communal Identity
+      in Western Nigeria, 1893-1951</span><span>, Journal of African History,
+      vol. 44(2), pp. 383-302 (Vaughan, 2003).</span></p>
+      <p><span className="c2">The History of the Yorubas: From the
+      Earliest Times to the Beginning of the British
+      Protectorate</span><span>&nbsp;(Johnson, 2001).</span></p>
+      <p><span className="c2">The Ijebu of Western Nigeria: A Historical
+      and Socio-Cultural Study</span><span>&nbsp;(Olubomehin ed.,
+      2001).</span></p>
+      <p><span className="c2">Themes in the History of the Ijebu and Remo
+      of Western Nigeria</span><span>&nbsp;(Olubomehin ed., 2010).</span></p>
+      <p><span className="c2">Sources of Yoruba History</span><span>,
+      Oxford Studies of African Affairs (Biobaku, 1973).</span></p>
+      <p><span className="c2">The Yoruba: History, Culture and
+      Language</span><span>, J.F. Odunjo Memorial Lectures, Series No. 5
+      (Olatunji ed., 1996).</span></p>
+
+      <h3>Local Government and Administration</h3>
+      <p><span className="c2">Local Administration in West
+      Africa</span><span>, pp. 190-97 on The Western Region (Wraith,
+      1972).</span></p>
+      <p><span className="c2">Local and District Councils - Should They be
+      Forgotten?</span><span>, Journal of Modern African Studies, vol. 13(2), pp.
+      309-32 (Riley, 1975).</span></p>
+      <p><span className="c2">Local Government and the Traditional Rulers
+      in Nigeria</span><span>, ch. 4 on The Role of Traditional Rules in Local
+      Government - Western Nigerian Experience in Historical Perspective
+      (Aborisade ed., 1985).</span></p>
+      <p><span className="c2">Local Government in Southern Nigeria: A
+      Manual of Law and Procedure Under the Eastern Region Local Government Law,
+      1955, and the Western Region Local Government Law,
+      1952</span><span>&nbsp;(Harris, 1957).</span></p>
+      <p><span className="c2">Local Government in Yoruba Towns: An
+      Analysis of the Roles of Obas, Chiefs and Elected Councillors</span><span>,
+      D.Phil. Thesis, Oxford University (Lloyd, 1958).</span></p>
+      <p><span className="c2">Local Government System in Western Nigeria:
+      A Comparative Evaluation Performance Under Civilian and Military
+      Regimes</span><span>, Indian Journal of Political Science, vol. 36(2), pp.
+      123-36 (Ajibola &amp; Oyejide, 1975).</span></p>
+      <p><span className="c2">The Nigerian Local Government Administrative
+      Practice and Management</span><span>&nbsp;(Oyewo, 1987).</span></p>
+      <p><span className="c2">The Principles of Native Administration in
+      Nigeria: Selected Documents, 1900-1947</span><span>&nbsp;(Kirk-Greene ed.,
+      1965).</span></p>
+      <p><span className="c2">The Reorganisation of Nigeria&rsquo;s
+      Administration</span><span>, Journal of Modern African Studies, vol. 6(4),
+      pp. 571-81 (Murray, 1968).</span></p>
+
+      <h3>Geography</h3>
+      <p><span className="c2">A Geography of Western
+      Nigeria</span><span>&nbsp;(Grant, 1960).</span></p>
+      <p><span className="c2">Nigeria and Western Nigeria
+      Maps</span><span>&nbsp;(Harvard Map Collection, 1958-1973).</span></p>
+    </div>
+  );
+};
+
+var AboutPg = function (props) {
+  return (
+    <div>
+      <p>This is the "intro" page with brief description, video, etc.</p>
+    </div>
+  );
+};
+
+var CreditsPg = function (props) {
+  return (
+    <div>
+      <p>List specific people and roles contributed.</p>
+    </div>
+  );
+};
+
+var AdminPg = function (props) {
+  return (
+    <div>
+      <p>Update data for the following:</p>
+      <ul>
+        <li>
+          <Link to="/admin/laws" activeClassName="active">Laws</Link>
+        </li>
+        <li>
+          <Link to="/admin/drums" activeClassName="active">Drums</Link>
+        </li>
+        <li>
+          <Link to="/admin/councils" activeClassName="active">Councils</Link>
+        </li>
+      </ul>
+    </div>
+  );
+};
+
 var DrumsPg = function (props) {
   return (
     <div>
@@ -247,11 +424,19 @@ var DrumsPg = function (props) {
   );
 };
 
+var CouncilsPg = function (props) {
+  return (
+    <div>
+      <p>List council data here.</p>
+    </div>
+  );
+};
+
 // Layout components
 var Navi = function (props) {
   return (
     <nav className="navbar navbar-default navbar-fixed-top">
-      <div className="container">
+      <div className="container-fluid">
         <div className="navbar-header">
           <button type="button" className="navbar-toggle collapsed" data-toggle="collapse" data-target="#adl-nav" aria-expanded="false">
             <span className="sr-only">Toggle navigation</span>
@@ -265,13 +450,13 @@ var Navi = function (props) {
         <div className="collapse navbar-collapse" id="adl-nav">
           <ul className="nav navbar-nav">
             <li>
-              <Link to="/map" activeClassName="active">Map</Link>
+              <Link to="/research" activeClassName="active">Research</Link>
             </li>
             <li>
-              <Link to="/drums" activeClassName="active">Drums</Link>
+              <Link to="/about" activeClassName="active">About</Link>
             </li>
             <li>
-              <Link to="/laws" activeClassName="active">Laws</Link>
+              <Link to="/credits" activeClassName="active">Credits</Link>
             </li>
           </ul>
         </div>
@@ -280,19 +465,41 @@ var Navi = function (props) {
   );
 };
 
-var MapLayout = React.createClass({
-  mixins: [ReactFireMixin],
+// Map components
+var MapPopup = function (council) {
+  var drumtext = 'drum';
+  if (council.numdrums == 0) {
+    council.numdrums = 8;
+    drumtext += 's';
+  } else if (council.numdrums > 1) {
+    drumtext += 's';
+  }
+  var lawtext = 'law';
+  if (council.numlaws > 1) {
+    lawtext += 's';
+  }
+  return (
+    <div className="map-popup">
+      <h6>{council.fullname}</h6>
+      <h5><strong>{council.numdrums} {drumtext}</strong> controlled</h5>
+      <h5><strong>{council.numlaws} {lawtext}</strong> published</h5>
+    </div>
+  );
+};
 
+var MapLayout = React.createClass({
   getInitialState: function () {
     return {
-      laws: [],
       geo: {}
     }
   },
 
   render: function () {
     return (
-      <div id="map"></div>
+      <div>
+        <div id="map"></div>
+        <div id="sidebar" className="container"></div>
+      </div>
     );
   },
 
@@ -303,11 +510,14 @@ var MapLayout = React.createClass({
     var map = new mapboxgl.Map({
       container: 'map',
       style: 'mapbox://styles/gbhatnag/ciql39wck0035bgm2dfj108tt',
-      minZoom: 6,
-      maxZoom: 10,
-      center: [5.036096118841982, 7.28924897406489],
-      zoom: 7.236
+      minZoom: 6.5,
+      maxZoom: 10.5,
+      center: [3.730036572237964, 7.02734800827244],
+      zoom: 6.85
     });
+    map.addControl(new mapboxgl.Navigation());
+    map.dragRotate.disable();
+    map.touchZoomRotate.disableRotation();
 
     var logPosition = function () {
       console.log("center: " + map.getCenter());
@@ -315,39 +525,6 @@ var MapLayout = React.createClass({
     };
 
     map.on("load", function (ev) {
-      self.state.laws.forEach(function (law) {
-        if (law.location && law.location.lon && law.location.lat) {
-          var lng = law.location.lon;
-          var lat = law.location.lat;
-          if (lng >= 90 || lng <= -90) {
-            console.log(law.citation + " lat/lng out of bounds");
-            firebase.database().ref("/laws/" + law.id).update({
-              location: null
-            });
-          } else {
-            var marker = new mapboxgl.Marker()  // TODO account for duplicates
-              .setLngLat([lng, lat])
-              .addTo(map);
-          }
-        } else {
-          console.log(law.citation + " does not have location");
-        }
-      });
-
-      // track map movements and events
-      $(window).resize(logPosition);
-      map.on("move", logPosition);
-      map.on("zoom", logPosition);
-      map.on("click", function (data) {
-        console.log(data.lngLat);
-      });
-
-      // var popup = new mapboxgl.Popup()
-      //   .setLngLat([3.348,7.161])
-      //   .setHTML("<p>Abeokuta District Council</p>")
-      //   .addTo(map);
-
-      // add layers
       map.addSource('wnprovinces', {
         type: 'geojson',
         data: self.state.geo.wnprovinces
@@ -361,8 +538,8 @@ var MapLayout = React.createClass({
           'line-cap': 'round'
         },
         paint: {
-          'line-color': '#222',
-          'line-width': 1
+          'line-color': 'rgba(214,214,214,1)',
+          'line-width': 2
         }
       });
 
@@ -379,8 +556,39 @@ var MapLayout = React.createClass({
           'line-cap': 'round'
         },
         paint: {
-          'line-color': '#222',
-          'line-width': 3
+          'line-color': 'rgba(195,96,96,0.5)',
+          'line-width': 2
+        }
+      });
+
+      map.addSource('wnlabel', {
+        type: 'geojson',
+        data: {
+          type: "Feature",
+          properties: {
+            label: "WESTERN NIGERIA"
+          },
+          geometry: {
+            type: "Point",
+            coordinates: [4.6792929918997, 6.680544692240744]
+          }
+        }
+      });
+      map.addLayer({
+        id: 'wnlabel',
+        type: 'symbol',
+        source: 'wnlabel',
+        layout: {
+          "text-field": "{label}",
+          "text-font": ["Mark Offc Pro Bold"],
+          "text-size": 18,
+          "text-transform": "uppercase",
+          "text-letter-spacing": 0.3,
+          "text-offset": [1,1],
+          "text-anchor": "bottom"
+        },
+        paint: {
+          'text-color': 'rgba(195,96,96,0.5)'
         }
       });
 
@@ -394,26 +602,92 @@ var MapLayout = React.createClass({
         source: 'wnprovincelabels',
         layout: {
           "text-field": "{label}",
-          "text-font": ["Open Sans Bold", "Arial Unicode MS Bold"],
-          "text-size": 11,
+          "text-font": ["Open Sans Bold"],
+          "text-size": 14,
           "text-transform": "uppercase",
-          "text-letter-spacing": 0.05,
-          "text-offset": [0, 1.5],
+          "text-letter-spacing": 0.1,
+          "text-offset": [1,1],
           "text-anchor": "bottom"
+        },
+        paint: {
+          'text-color': 'rgba(207,207,207,1)'
         }
       });
+
+      map.addSource('councils', {
+        type: 'geojson',
+        data: self.state.geo.councils
+      });
+      map.addLayer({
+        id: 'councils',
+        type: 'symbol',
+        source: 'councils',
+        layout: {
+          'icon-image': 'circle-11',
+          'icon-allow-overlap': true,
+          'text-optional': true,
+          'text-field': '{shortname}',
+          "text-font": ["HolmenOT Regular"],
+          "text-size": 12,
+          "text-transform": "uppercase",
+          "text-letter-spacing": 0.05,
+          "text-offset": [0, 1.8],
+          "text-anchor": "bottom"
+        },
+        paint: {
+          'icon-color': "#943b2b",
+          'text-color': "#943b2b",
+          'icon-opacity': 0.7
+        }
+      });
+      var popup = new mapboxgl.Popup({
+        closeButton: false,
+        closeOnClick: false
+      });
+      map.on('mousemove', function (ev) {
+        var features = map.queryRenderedFeatures(ev.point, { layers: ['councils'] });
+        map.getCanvas().style.cursor = (features.length) ? 'pointer' : '';
+        if (!features.length) {
+            popup.remove();
+            return;
+        }
+        var feature = features[0];
+        var popupDiv = document.createElement('div');
+        ReactDOM.render(MapPopup(feature.properties), popupDiv);
+        popup.setLngLat(feature.geometry.coordinates)
+          .setHTML(popupDiv.innerHTML)
+          .addTo(map);
+      });
+
+      // track map movements and events
+      // $(window).resize(logPosition);
+      // map.on("move", logPosition);
+      // map.on("zoom", logPosition);
+      map.on("click", function (data) {
+        logPosition();
+        console.log("clicked at: " + data.lngLat);
+      });
+
+      // // Listen for filter change
+      // document.addEventListener('filterChange', function (ev) {
+      //   console.log(ev.target);
+      //   console.log(ev.target.id);
+      //   console.log(ev.target.checked);
+      //   var layerGroup = ev.target.id;
+      //   self.state.baseLayers[layerGroup].forEach(function (layerId) {
+      //     console.log("changing layer: " + layerId);
+      //     map.setLayoutProperty(layerId, 'visibility',
+      //       ev.target.checked ? 'visible' : 'none');
+      //   });
+      // }, false);
     });
   },
 
   componentWillMount: function () {
     var self = this;
-    $.getJSON(app.options.databaseURL + "/.json", function (data) {
-      console.log(data);
-      var geo = data.geo;
-      var laws = $.map(data.laws, function (law) { return law; });
+    $.getJSON(app.options.databaseURL + "/geo.json", function (data) {
       self.setState({
-        laws: laws,
-        geo: geo
+        geo: data
       });
     });
   }
@@ -424,9 +698,22 @@ var MainLayout = React.createClass({
     return (
       <div>
         <Navi />
-        <main className="container">
+        <main className="container-fluid">
           {this.props.children}
         </main>
+        <footer>
+          <div className="well well-lg">
+            <p><a className="noline" rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">
+              <img alt="Creative Commons License"
+                src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" />
+            </a> &nbsp; <Link to="/">African Drumming Laws</Link>
+              &nbsp;by <a href="http://revolutionari.es">The Revolutionaries</a>
+              &nbsp;is licensed under a <a rel="license"
+                  href="http://creativecommons.org/licenses/by-sa/4.0/">Creative
+                  Commons Attribution-ShareAlike 4.0 International License</a>.
+            </p>
+          </div>
+        </footer>
       </div>
     );
   }
@@ -435,11 +722,15 @@ var MainLayout = React.createClass({
 ReactDOM.render((
   <Router history={browserHistory}>
     <Route component={MainLayout}>
-      <Route path="/" component={HomePg} />
-      <Route path="/map" component={MapLayout} />
-      <Route path="/drums" component={DrumsPg} />
-      <Route path="/laws" component={LawsPg} />
-      <Route path="/laws/:lawId" component={LawPg} />
+      <Route path="/" component={MapLayout} />
+      <Route path="/research" component={ResearchPg} />
+      <Route path="/about" component={AboutPg} />
+      <Route path="/credits" component={CreditsPg} />
+      <Route path="/admin" component={AdminPg} />
+      <Route path="/admin/drums" component={DrumsPg} />
+      <Route path="/admin/councils" component={DrumsPg} />
+      <Route path="/admin/laws" component={LawsPg} />
+      <Route path="/admin/laws/:lawId" component={LawPg} />
     </Route>
   </Router>
 ), document.getElementById('root'));

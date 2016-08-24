@@ -13,3 +13,68 @@ main {padding-top: 81px;}
   font-weight:bold;
 }
 .mapboxgl-popup {color:#1a1818;}
+.mapboxgl-ctrl-compass {display:none !important;}
+.c2 {font-style:italic;}  /* from Google Docs */
+#sidebar {
+  width:333px; height:100%;
+  position:fixed; top:40px; left:0; z-index:1;
+  background-color:#2b3e50;
+}
+footer {margin-top:4em;}
+footer .well {margin-bottom:0;}
+
+/*
+ * Filter Controller
+ * from https://www.mapbox.com/mapbox-gl-js/example/filter-markers/
+ */
+.filter-group {
+    font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+    font-weight: 600;
+    position: absolute;
+    top: 50px;
+    right: 10px;
+    z-index: 1;
+    border-radius: 3px;
+    width: 120px;
+    color: #fff;
+}
+
+.filter-group label {
+  margin-bottom: 0px;
+}
+
+.filter-group input[type=checkbox]:first-child + label {
+    border-radius: 3px 3px 0 0;
+}
+
+.filter-group label:last-child {
+    border-radius: 0 0 3px 3px;
+    border: none;
+}
+
+/*.filter-group input[type=checkbox] {
+    display: none;
+}*/
+
+.filter-group input[type=checkbox] + label {
+    background-color: #3386c0;
+    display: block;
+    cursor: pointer;
+    padding: 10px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.25);
+}
+
+.filter-group input[type=checkbox] + label {
+    background-color: #3386c0;
+    text-transform: capitalize;
+}
+
+.filter-group input[type=checkbox] + label:hover,
+.filter-group input[type=checkbox]:checked + label {
+    background-color: #4ea0da;
+}
+
+/*.filter-group input[type=checkbox]:checked + label:before {
+    content: '✔';
+    margin-right: 5px;
+}*/
