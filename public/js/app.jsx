@@ -1,6 +1,7 @@
 // Routing and app
 var Router = ReactRouter.Router;
 var Route = ReactRouter.Route;
+var IndexRoute = ReactRouter.IndexRoute;
 var Link = ReactRouter.Link;
 var browserHistory = ReactRouter.browserHistory;
 
@@ -10,6 +11,8 @@ var app = firebase.initializeApp({
   databaseURL: "https://africandrumminglaws.firebaseio.com",
   storageBucket: "africandrumminglaws.appspot.com",
 });
+
+var adlmap = null;
 
 // Create custom event
 var FilterChangeEvent = document.createEvent('Event');
@@ -85,10 +88,17 @@ const LawSchemaOptions = {
   }
 };
 
-// helper function to clean up citations
+// helper to clean up citations
 // i.e. "W.R.L.N. 13 of 1956" --> "WRLN13of1956"
 var sanitizeCitation = function (str) {
   return str.split('.').join('').split(' ').join('');
+};
+
+// helper to display pluralized labels
+var displayPluralized = function (itemStr, collectionObj) {
+  var i = Object.keys(collectionObj).length;
+  var singular = i + ' ' + itemStr;
+  return i > 1 ? singular + 's' : singular;
 };
 
 // Laws
@@ -308,8 +318,8 @@ var ResearchPg = function (props) {
       <p><span className="c2">The Talking Drums of Nigeria</span><span>,
       International Library of African Music, vol. 5(4), pp. 36-40 (Akpabot,
       1975/1976).</span></p>
-      <p><span className="c2">Yoruban Drums</span><span>, Journal of
-      Yoruba and Related Studies, vol. 7, pp. 5-14</span></p>
+      <p><span className="c2">Yoruba Drums</span><span>, Journal of
+      Yoruba and Related Studies, vol. 7, pp. 5-14 (Laoye I, 1959)</span></p>
 
       <h3>Anthropology</h3>
       <p><span className="c2">Nigerian Studies, or the Religious and
@@ -432,39 +442,6 @@ var CouncilsPg = function (props) {
   );
 };
 
-// Layout components
-var Navi = function (props) {
-  return (
-    <nav className="navbar navbar-default navbar-fixed-top">
-      <div className="container-fluid">
-        <div className="navbar-header">
-          <button type="button" className="navbar-toggle collapsed" data-toggle="collapse" data-target="#adl-nav" aria-expanded="false">
-            <span className="sr-only">Toggle navigation</span>
-            <span className="icon-bar"></span>
-            <span className="icon-bar"></span>
-            <span className="icon-bar"></span>
-          </button>
-          <Link to="/" className="navbar-brand">African Drumming Laws</Link>
-        </div>
-
-        <div className="collapse navbar-collapse" id="adl-nav">
-          <ul className="nav navbar-nav">
-            <li>
-              <Link to="/research" activeClassName="active">Research</Link>
-            </li>
-            <li>
-              <Link to="/about" activeClassName="active">About</Link>
-            </li>
-            <li>
-              <Link to="/credits" activeClassName="active">Credits</Link>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </nav>
-  );
-};
-
 // Map components
 var MapPopup = function (council) {
   var drumtext = 'drum';
@@ -487,6 +464,187 @@ var MapPopup = function (council) {
   );
 };
 
+var Filters = React.createClass({
+  getInitialState: function () {
+    return {
+      year: {},
+      numdrums: 101
+    };
+  },
+
+  render: function () {
+    var self = this;
+    var drumtext = function () {
+      return self.state.numdrums > 1 ? 'drums' : 'drum';
+    };
+    return (
+      <div className="row">
+        <div className="col-xs-12">
+          <a id="filter-btn" href="#" className="btn btn-default btn-block clearfix">
+            <span className="pull-left"><span className="icon-filter"></span> &nbsp; Filter &amp; Sort</span>
+            <span className="pull-right">{self.state.numdrums} {drumtext()}</span>
+          </a>
+        </div>
+      </div>
+    );
+  }
+});
+
+var LawItem = React.createClass({
+  render: function () {
+    return (
+      <a href="#" className="list-group-item">
+        <h4 className="list-group-item-heading">Law Item</h4>
+        <p className="list-group-item-text">Something else about dunduns</p>
+      </a>
+    );
+  }
+});
+
+var CouncilItem = React.createClass({
+  render: function () {
+    return (
+      <a href="#" className="list-group-item">
+        <h4 className="list-group-item-heading">Council Item</h4>
+        <p className="list-group-item-text">Something else about dunduns</p>
+      </a>
+    );
+  }
+});
+
+var DrumItem = React.createClass({
+  getInitialState: function () {
+    return {
+      drum: {},
+      laws: []
+    };
+  },
+
+  renderLawRow: function (law) {
+    // update modal content
+    var $lawmodal = $("#law-modal");
+    var lawPath = "https://africandrumminglaws.org" + law.pdfPath;
+    $(".modal-title", $lawmodal).html(law.citation);
+    $("#law-viewer", $lawmodal).attr('src', lawPath);
+    $("#law-download", $lawmodal).attr('href', lawPath);
+    return (
+      <a href="#" className="list-group-item" key={law.id} data-toggle="modal" data-target="#law-modal">
+        <p className="list-group-item-text">{law.citation}</p>
+        <h4 className="list-group-item-heading">{law.title}</h4>
+      </a>
+    );
+  },
+
+  render: function () {
+    var drum = this.state.drum;
+    var laws = this.state.laws;
+    if (!$.isEmptyObject(drum)) {
+      return (
+        <div>
+          <div className="row">
+            <div className="col-xs-12">
+              <p className="marker center"><span className="selected-item icon-circle"></span></p>
+              <h4 className="center">{Object.keys(drum.names)[0]}</h4>
+              <p>
+                The {Object.keys(drum.names)[0]} is a drum that is controlled in
+                the following&nbsp;
+                <strong>{displayPluralized('law', drum.law_mentions)}</strong> across&nbsp;
+                <strong>{displayPluralized('council', drum.council_mentions)}</strong>
+              </p>
+            </div>
+          </div>
+          <div className="list-group">
+            {this.state.laws.map(this.renderLawRow)}
+          </div>
+        </div>
+      );
+    } else {
+      return (
+        <p className="text-meta">Loading...</p>
+      );
+    }
+  },
+
+  componentWillMount: function () {
+    var self = this;
+    $.getJSON(app.options.databaseURL + "/.json", function (data) {
+      var drum = data.drums[self.props.params.drumId];
+      var citations = Object.keys(drum.law_mentions);
+      var laws = [];
+      citations.forEach(function (citation) {
+        laws.push(data.laws[citation]);
+      });
+      self.setState({
+        drum: drum,
+        laws: laws
+      });
+    });
+  }
+});
+
+var DrumList = React.createClass({
+  getInitialState: function () {
+    return {
+      drums: []
+    };
+  },
+
+  renderDrumItem: function (drum) {
+    var drumLocation = {
+      pathname: "/drums/" + drum.id
+    };
+    return (
+      <Link to={drumLocation} className={drum.years.join(' ') + ' list-group-item'} key={drum.id}>
+        <h4 className="list-group-item-heading indent">{Object.keys(drum.names)[0]} <small className="text-meta">drum</small></h4>
+        <p className="list-group-item-text">
+          <span className="icon-circle unselected-item bullet"></span>&nbsp;
+          <strong>{displayPluralized('law', drum.law_mentions)}</strong> across&nbsp;
+          <strong>{displayPluralized('council', drum.council_mentions)}</strong>
+        </p>
+        <p className="list-group-item-text indent small">{drum.years.join(' ')}</p>
+      </Link>
+    );
+  },
+
+  render: function () {
+    return (
+      <div>
+        <div className="row">
+          <div className="col-xs-12">
+            <a id="filter-btn" href="#" className="btn btn-default btn-block text-info clearfix">
+              <span className="pull-left"><span className="icon-filter bullet"></span> Filter &amp; Sort</span>
+              <span className="pull-right"><span className="badge"><strong>{this.state.drums.length}</strong></span> drums</span>
+            </a>
+          </div>
+        </div>
+        <div className="list-group">
+          {this.state.drums.map(this.renderDrumItem)}
+        </div>
+      </div>
+    );
+  },
+
+  componentWillMount: function () {
+    var self = this;
+    $.getJSON(app.options.databaseURL + "/drums.json", function (data) {
+      var drums = $.map(data, function (drum) {
+        var extended = drum;
+        var years = [];
+        var citations = Object.keys(extended.law_mentions);
+        citations.forEach(function (citation) {
+          years.push(citation.split('of')[1]);
+        });
+        extended.years = years;
+        return extended;
+      });
+      self.setState({
+        drums: drums
+      });
+    });
+  }
+});
+
+// Layout components
 var MapLayout = React.createClass({
   getInitialState: function () {
     return {
@@ -496,28 +654,34 @@ var MapLayout = React.createClass({
 
   render: function () {
     return (
-      <div>
-        <div id="map"></div>
-        <div id="sidebar" className="container"></div>
+      <div className="row">
+        <div id="sidebar" className="col-xs-3">
+          {this.props.children}
+        </div>
+        <div id="map" className="col-xs-9"></div>
       </div>
     );
   },
 
   componentDidUpdate: function () {
-    console.log("componentDidUpdate");
+    if (adlmap) {
+      return;
+    }
+    console.log("draw map");
     var self = this;
     mapboxgl.accessToken = 'pk.eyJ1IjoiZ2JoYXRuYWciLCJhIjoiY2lxbDMzeDdnMDAxcGVpa3ZqOWFtNTNpZyJ9.6zSnoYwnb85A8DS107TSnA';
     var map = new mapboxgl.Map({
       container: 'map',
       style: 'mapbox://styles/gbhatnag/ciql39wck0035bgm2dfj108tt',
-      minZoom: 6.5,
+      minZoom: 5.85,
       maxZoom: 10.5,
-      center: [3.730036572237964, 7.02734800827244],
+      center: [4.534582795867038, 7.105981715944324],
       zoom: 6.85
     });
     map.addControl(new mapboxgl.Navigation());
     map.dragRotate.disable();
     map.touchZoomRotate.disableRotation();
+    adlmap = map;
 
     var logPosition = function () {
       console.log("center: " + map.getCenter());
@@ -570,7 +734,7 @@ var MapLayout = React.createClass({
           },
           geometry: {
             type: "Point",
-            coordinates: [4.6792929918997, 6.680544692240744]
+            coordinates: [5.009996473488599, 6.623436730545936]
           }
         }
       });
@@ -693,6 +857,38 @@ var MapLayout = React.createClass({
   }
 });
 
+var Navi = function (props) {
+  return (
+    <nav className="navbar navbar-default navbar-fixed-top">
+      <div className="container-fluid">
+        <div className="navbar-header">
+          <button type="button" className="navbar-toggle collapsed" data-toggle="collapse" data-target="#adl-nav" aria-expanded="false">
+            <span className="sr-only">Toggle navigation</span>
+            <span className="icon-bar"></span>
+            <span className="icon-bar"></span>
+            <span className="icon-bar"></span>
+          </button>
+          <Link to="/" className="navbar-brand">African Drumming Laws</Link>
+        </div>
+
+        <div className="collapse navbar-collapse" id="adl-nav">
+          <ul className="nav navbar-nav">
+            <li>
+              <Link to="/research" activeClassName="active">Research</Link>
+            </li>
+            <li>
+              <Link to="/about" activeClassName="active">About</Link>
+            </li>
+            <li>
+              <Link to="/credits" activeClassName="active">Credits</Link>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+  );
+};
+
 var MainLayout = React.createClass({
   render: function () {
     return (
@@ -722,7 +918,13 @@ var MainLayout = React.createClass({
 ReactDOM.render((
   <Router history={browserHistory}>
     <Route component={MainLayout}>
-      <Route path="/" component={MapLayout} />
+      <Route path="/" component={MapLayout}>
+        <IndexRoute component={DrumList} />
+        <Route path="/drums" component={DrumList} />
+        <Route path="/drums/:drumId" component={DrumItem} />
+        <Route path="/laws/:lawId" component={LawItem} />
+        <Route path="/councils/:councilId" component={CouncilItem} />
+      </Route>
       <Route path="/research" component={ResearchPg} />
       <Route path="/about" component={AboutPg} />
       <Route path="/credits" component={CreditsPg} />
