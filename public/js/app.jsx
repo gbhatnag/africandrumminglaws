@@ -253,144 +253,6 @@ var  HomePg = function (props) {
   );
 };
 
-var ResearchPg = function (props) {
-  return (
-    <div>
-      <h2>Bibliography - Drumming Laws in Western Nigeria</h2>
-      <p>The following list of resources pertains to research on colonial era drumming laws in Western Nigeria. These materials provide access to the approximately 100 drumming regulations passed by local governments throughout Western Nigeria from 1956 through 1975. Moreover, this comprehensive bibliography covers areas such as colonial law, customary law, ethnomusicology, anthropology, history, local government and administration, and geography.</p>
-
-      <h3>Colonial Law</h3>
-      <h4>Primary</h4>
-      <p><span className="c2">Annual Volume of the Laws of Western State
-      of Nigeria</span> <span>(Govt. Printer, 1967-1976).</span></p>
-      <p><span className="c2">Legislation of the Western Region of
-      Nigeria</span> <span>(Govt. Printer, 1952-1964).</span></p>
-
-      <h4>Secondary</h4>
-      <p><span className="c2">The Interaction of English Law with
-      Customary Law in Western Nigeria: I &amp; II</span><span>, Journal of
-      African Law, vol. 4, pp. 40-50, 98-114 (Ayaji, 1960).</span></p>
-      <p><span className="c2">The Interaction of English Law with
-      Customary Law in West Africa</span><span>, International &amp; Comparative
-      Law Quarterly, vol. 13, pp. 574-616 (Daniels, 1964).</span></p>
-      <p><span className="c2">Law Libraries in the Western Region/State of
-      Nigeria</span><span>, International Library Review, vol. 20(2), pp. 227-32
-      (Okewusi, 1988).</span></p>
-      <p><span className="c2">Legal Development in Nigeria, 1957-1967: A
-      Practicing Lawyer&rsquo;s View</span><span>, Journal of African Law, vol.
-      11(2), pp. 77-85 (Williams, 1967).</span></p>
-
-      <h3>Customary Law</h3>
-      <p><span className="c2">Customary Law in the New African
-      States</span><span>, Univ. Chicago Committee for Comp. Study of New
-      Nations, Reprint Series, No. 4 (Fallers, 1965).</span></p>
-      <p><span className="c2">Judicial Administration in a Changing
-      Society - Customary Courts in Western Nigeria</span><span>, Law and
-      Politics in Africa, Asia and Latin America, vol. 8(3/4), pp. 435-46
-      (Kayode, 1975).</span></p>
-      <p><span className="c2">The Laws and Customs of the Yoruba
-      People</span><span>&nbsp;(Ajisafe, 2003).</span></p>
-      <p><span className="c2">Native Courts and Native Customary Law in
-      Africa</span><span>, Judicial Advisers&rsquo; Conference, Special
-      Supplement to Journal of African Administration (Great Britain Colonial
-      Office, 1953).</span></p>
-      <p><span className="c2">The Nature of African Customary
-      Law</span><span>&nbsp;(Elias, 1956).</span></p>
-      <p><span className="c2">Restatement of Customary Law in
-      Nigeria</span><span>, Nigerian Institute of Advanced Legal Studies (Azinge,
-      2013).</span></p>
-      <p><span className="c2">A Survey of African Law and Custom with
-      Particular Reference to the Yoruba Speaking Peoples of South-Western
-      Nigeria</span><span>&nbsp;(Oyewo &amp; Olaoba, 1999).</span></p>
-      <p><span className="c2">The Yoruba-Speaking Peoples of the Slave
-      Coast of West Africa</span><span>, ch. 11 on Laws and Customs (Ellis,
-      1974).</span></p>
-
-      <h3>Ethnomusicology</h3>
-      <p><span className="c2">A Descriptive Catalogue of Yoruba Musical
-      Instruments</span><span>, Catholic University of America, Studies in Music
-      No. 37, Ph.D. Dissertation (Thieme, 1969).</span></p>
-      <p><span className="c2">The Drum and Its Role in Yoruba
-      Religion</span><span>, Ademola Journal of Religion in Africa, vol. 18(1),
-      pp. 15-26 (Adegbite, 1988).</span></p>
-      <p><span className="c2">Ogboni Drums</span><span>, African Arts,
-      vol. 6(3), pp. 50-52, 84 (Ojo, 1973).</span></p>
-      <p><span className="c2">The Talking Drums of Nigeria</span><span>,
-      International Library of African Music, vol. 5(4), pp. 36-40 (Akpabot,
-      1975/1976).</span></p>
-      <p><span className="c2">Yoruba Drums</span><span>, Journal of
-      Yoruba and Related Studies, vol. 7, pp. 5-14 (Laoye I, 1959)</span></p>
-
-      <h3>Anthropology</h3>
-      <p><span className="c2">Nigerian Studies, or the Religious and
-      Political System of the Yoruba</span><span>, Cass Library of African
-      Studies, General Studies, No. 48</span><span> (Dennett, 1968).</span></p>
-      <p><span className="c2">The Religion of the
-      Yorubas</span><span>&nbsp;(Lucas, 1948).</span></p>
-      <p><span className="c2">The Sociology of the
-      Yoruba</span><span>&nbsp;(Fadipe, 1970).</span></p>
-
-      <h3>History</h3>
-      <p><span className="c2">An Introduction to Western Nigeria: Its
-      People, Culture, and System of Government</span><span>&nbsp;(Adedeji,
-      1967).</span></p>
-      <p><span className="c2">Chieftaincy Politics and Communal Identity
-      in Western Nigeria, 1893-1951</span><span>, Journal of African History,
-      vol. 44(2), pp. 383-302 (Vaughan, 2003).</span></p>
-      <p><span className="c2">The History of the Yorubas: From the
-      Earliest Times to the Beginning of the British
-      Protectorate</span><span>&nbsp;(Johnson, 2001).</span></p>
-      <p><span className="c2">The Ijebu of Western Nigeria: A Historical
-      and Socio-Cultural Study</span><span>&nbsp;(Olubomehin ed.,
-      2001).</span></p>
-      <p><span className="c2">Themes in the History of the Ijebu and Remo
-      of Western Nigeria</span><span>&nbsp;(Olubomehin ed., 2010).</span></p>
-      <p><span className="c2">Sources of Yoruba History</span><span>,
-      Oxford Studies of African Affairs (Biobaku, 1973).</span></p>
-      <p><span className="c2">The Yoruba: History, Culture and
-      Language</span><span>, J.F. Odunjo Memorial Lectures, Series No. 5
-      (Olatunji ed., 1996).</span></p>
-
-      <h3>Local Government and Administration</h3>
-      <p><span className="c2">Local Administration in West
-      Africa</span><span>, pp. 190-97 on The Western Region (Wraith,
-      1972).</span></p>
-      <p><span className="c2">Local and District Councils - Should They be
-      Forgotten?</span><span>, Journal of Modern African Studies, vol. 13(2), pp.
-      309-32 (Riley, 1975).</span></p>
-      <p><span className="c2">Local Government and the Traditional Rulers
-      in Nigeria</span><span>, ch. 4 on The Role of Traditional Rules in Local
-      Government - Western Nigerian Experience in Historical Perspective
-      (Aborisade ed., 1985).</span></p>
-      <p><span className="c2">Local Government in Southern Nigeria: A
-      Manual of Law and Procedure Under the Eastern Region Local Government Law,
-      1955, and the Western Region Local Government Law,
-      1952</span><span>&nbsp;(Harris, 1957).</span></p>
-      <p><span className="c2">Local Government in Yoruba Towns: An
-      Analysis of the Roles of Obas, Chiefs and Elected Councillors</span><span>,
-      D.Phil. Thesis, Oxford University (Lloyd, 1958).</span></p>
-      <p><span className="c2">Local Government System in Western Nigeria:
-      A Comparative Evaluation Performance Under Civilian and Military
-      Regimes</span><span>, Indian Journal of Political Science, vol. 36(2), pp.
-      123-36 (Ajibola &amp; Oyejide, 1975).</span></p>
-      <p><span className="c2">The Nigerian Local Government Administrative
-      Practice and Management</span><span>&nbsp;(Oyewo, 1987).</span></p>
-      <p><span className="c2">The Principles of Native Administration in
-      Nigeria: Selected Documents, 1900-1947</span><span>&nbsp;(Kirk-Greene ed.,
-      1965).</span></p>
-      <p><span className="c2">The Reorganisation of Nigeria&rsquo;s
-      Administration</span><span>, Journal of Modern African Studies, vol. 6(4),
-      pp. 571-81 (Murray, 1968).</span></p>
-
-      <h3>Geography</h3>
-      <p><span className="c2">A Geography of Western
-      Nigeria</span><span>&nbsp;(Grant, 1960).</span></p>
-      <p><span className="c2">Nigeria and Western Nigeria
-      Maps</span><span>&nbsp;(Harvard Map Collection, 1958-1973).</span></p>
-    </div>
-  );
-};
-
 var AboutPg = function (props) {
   return (
     <div>
@@ -513,6 +375,8 @@ var CouncilItem = React.createClass({
 });
 
 var DrumItem = React.createClass({
+  lawmodal: {},  // static DOM elements
+
   getInitialState: function () {
     return {
       drum: {},
@@ -520,15 +384,19 @@ var DrumItem = React.createClass({
     };
   },
 
-  renderLawRow: function (law) {
-    // update modal content
-    var $lawmodal = $("#law-modal");
+  openLaw: function (law) {
     var lawPath = "https://africandrumminglaws.org" + law.pdfPath;
-    $(".modal-title", $lawmodal).html(law.citation);
-    $("#law-viewer", $lawmodal).attr('src', lawPath);
-    $("#law-download", $lawmodal).attr('href', lawPath);
+    this.lawmodal.title.html(law.citation);
+    this.lawmodal.viewer.attr('src', lawPath);
+    this.lawmodal.body.append(this.lawmodal.viewer);
+    this.lawmodal.download.attr('href', lawPath);
+    this.lawmodal.modal.modal('show');
+  },
+
+  renderLawRow: function (law) {
     return (
-      <a href="#" className="list-group-item" key={law.id} data-toggle="modal" data-target="#law-modal">
+      <a href="#" className="list-group-item" key={law.id} data-toggle="modal"
+        data-target="#law-modal" onClick={this.openLaw.bind(this, law)}>
         <p className="list-group-item-text">{law.citation}</p>
         <h4 className="list-group-item-heading">{law.title}</h4>
       </a>
@@ -579,6 +447,25 @@ var DrumItem = React.createClass({
         laws: laws
       });
     });
+  },
+
+  componentDidMount: function () {
+    var $lawmodal   = $("#law-modal");
+    var lawtitle    = $(".modal-title", $lawmodal);
+    var lawviewer   = $('<iframe id="law-viewer" src="" frameborder="0"></iframe>');
+    var lawdownload = $("#law-download", $lawmodal);
+    var lawbody     = $(".modal-body", $lawmodal);
+    var lawmodal = {
+      modal: $lawmodal,
+      title: lawtitle,
+      body: lawbody,
+      viewer: lawviewer,
+      download: lawdownload
+    };
+    this.lawmodal = lawmodal;
+    $lawmodal.on('hidden.bs.modal', function (ev) {
+      lawbody.empty();
+    });
   }
 });
 
@@ -619,6 +506,17 @@ var DrumList = React.createClass({
         </div>
         <div className="list-group">
           {this.state.drums.map(this.renderDrumItem)}
+          <footer>
+              <p className="small"><a className="noline" rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">
+                <img alt="Creative Commons License"
+                  src="https://i.creativecommons.org/l/by-sa/4.0/80x15.png" />
+              </a>&nbsp;<Link to="/">African Drumming Laws</Link>
+              <br/>by <a href="http://revolutionari.es">The Revolutionaries</a>
+                &nbsp;is licensed under a <a rel="license"
+                  href="http://creativecommons.org/licenses/by-sa/4.0/">Creative
+                  Commons Attribution-ShareAlike 4.0 International License</a>.
+              </p>
+          </footer>
         </div>
       </div>
     );
@@ -655,10 +553,10 @@ var MapLayout = React.createClass({
   render: function () {
     return (
       <div className="row">
-        <div id="sidebar" className="col-xs-3">
+        <div id="sidebar" className="col-xs-4">
           {this.props.children}
         </div>
-        <div id="map" className="col-xs-9"></div>
+        <div id="map" className="col-xs-8"></div>
       </div>
     );
   },
@@ -857,37 +755,56 @@ var MapLayout = React.createClass({
   }
 });
 
-var Navi = function (props) {
-  return (
-    <nav className="navbar navbar-default navbar-fixed-top">
-      <div className="container-fluid">
-        <div className="navbar-header">
-          <button type="button" className="navbar-toggle collapsed" data-toggle="collapse" data-target="#adl-nav" aria-expanded="false">
-            <span className="sr-only">Toggle navigation</span>
-            <span className="icon-bar"></span>
-            <span className="icon-bar"></span>
-            <span className="icon-bar"></span>
-          </button>
-          <Link to="/" className="navbar-brand">African Drumming Laws</Link>
-        </div>
+var Navi = React.createClass({
+  handleModal: function (ev) {
+    var content = ev.target.id.split('-')[1];
+    $('.modal').modal('hide');
+    $('#' + content + '-modal').modal('show');
+    $('.nav-modal').removeClass("active");
+    $('#' + ev.target.id).addClass("active");
+  },
 
-        <div className="collapse navbar-collapse" id="adl-nav">
-          <ul className="nav navbar-nav">
-            <li>
-              <Link to="/research" activeClassName="active">Research</Link>
-            </li>
-            <li>
-              <Link to="/about" activeClassName="active">About</Link>
-            </li>
-            <li>
-              <Link to="/credits" activeClassName="active">Credits</Link>
-            </li>
-          </ul>
+  render: function () {
+    return (
+      <nav className="navbar navbar-default navbar-fixed-top">
+        <div className="container-fluid">
+          <div className="navbar-header">
+            <button type="button" className="navbar-toggle collapsed" data-toggle="collapse" data-target="#adl-nav" aria-expanded="false">
+              <span className="sr-only">Toggle navigation</span>
+              <span className="icon-bar"></span>
+              <span className="icon-bar"></span>
+              <span className="icon-bar"></span>
+            </button>
+            <Link to="/" className="navbar-brand">African Drumming Laws</Link>
+          </div>
+
+          <div className="collapse navbar-collapse" id="adl-nav">
+            <ul className="nav navbar-nav">
+              <li>
+                <a href="#about" id="nav-about" onClick={this.handleModal} className="nav-modal">About</a>
+              </li>
+              <li>
+                <a href="#other" id="nav-other" onClick={this.handleModal} className="nav-modal">Other Countries</a>
+              </li>
+              <li>
+                <a href="#research" id="nav-research" onClick={this.handleModal} className="nav-modal">Research</a>
+              </li>
+              <li>
+                <a href="#credits" id="nav-credits" onClick={this.handleModal} className="nav-modal">Credits</a>
+              </li>
+            </ul>
+          </div>
         </div>
-      </div>
-    </nav>
-  );
-};
+      </nav>
+    );
+  },
+
+  componentDidMount: function () {
+    $('.modal').on('hidden.bs.modal', function (ev) {
+      $('.nav-modal').removeClass("active");
+    });
+  }
+});
 
 var MainLayout = React.createClass({
   render: function () {
@@ -897,19 +814,6 @@ var MainLayout = React.createClass({
         <main className="container-fluid">
           {this.props.children}
         </main>
-        <footer>
-          <div className="well well-lg">
-            <p><a className="noline" rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">
-              <img alt="Creative Commons License"
-                src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" />
-            </a> &nbsp; <Link to="/">African Drumming Laws</Link>
-              &nbsp;by <a href="http://revolutionari.es">The Revolutionaries</a>
-              &nbsp;is licensed under a <a rel="license"
-                  href="http://creativecommons.org/licenses/by-sa/4.0/">Creative
-                  Commons Attribution-ShareAlike 4.0 International License</a>.
-            </p>
-          </div>
-        </footer>
       </div>
     );
   }
@@ -925,9 +829,6 @@ ReactDOM.render((
         <Route path="/laws/:lawId" component={LawItem} />
         <Route path="/councils/:councilId" component={CouncilItem} />
       </Route>
-      <Route path="/research" component={ResearchPg} />
-      <Route path="/about" component={AboutPg} />
-      <Route path="/credits" component={CreditsPg} />
       <Route path="/admin" component={AdminPg} />
       <Route path="/admin/drums" component={DrumsPg} />
       <Route path="/admin/councils" component={DrumsPg} />
