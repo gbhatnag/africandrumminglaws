@@ -480,15 +480,22 @@ var DrumList = React.createClass({
     var drumLocation = {
       pathname: "/drums/" + drum.id
     };
+    var thumb = drum.thumb ? drum.thumb : "/img/drums/unknown-th.jpg";
     return (
-      <Link to={drumLocation} className={drum.years.join(' ') + ' list-group-item'} key={drum.id}>
-        <h4 className="list-group-item-heading indent">{Object.keys(drum.names)[0]} <small className="text-meta">drum</small></h4>
-        <p className="list-group-item-text">
-          <span className="icon-circle unselected-item bullet"></span>&nbsp;
-          <strong>{displayPluralized('law', drum.law_mentions)}</strong> across&nbsp;
-          <strong>{displayPluralized('council', drum.council_mentions)}</strong>
-        </p>
-        <p className="list-group-item-text indent small">{drum.years.join(' ')}</p>
+      <Link to={drumLocation} className={drum.yearsorted.join(' ') + ' list-group-item clearfix'} key={drum.id}>
+        <div className="row">
+          <div className="col-xs-4">
+            <img src={thumb} className="drum-thumb" />
+          </div>
+          <div className="col-xs-8">
+            <h4 className="list-group-item-heading">{Object.keys(drum.names)[0]}</h4>
+            <p className="list-group-item-text">
+              <strong>{displayPluralized('law', drum.law_mentions)}</strong> in&nbsp;
+              <strong>{displayPluralized('council', drum.council_mentions)}</strong>
+            </p>
+            <p className="list-group-item-text small">{drum.yearsorted.join(' ')}</p>
+          </div>
+        </div>
       </Link>
     );
   },
@@ -527,16 +534,24 @@ var DrumList = React.createClass({
     $.getJSON(app.options.databaseURL + "/drums.json", function (data) {
       var drums = $.map(data, function (drum) {
         var extended = drum;
-        var years = [];
+        var years = {};
         var citations = Object.keys(extended.law_mentions);
         citations.forEach(function (citation) {
-          years.push(citation.split('of')[1]);
+          var yr = citation.split('of')[1];
+          if (years[yr]) {
+            years[yr]++;
+          } else {
+            years[yr] = 1;
+          }
         });
-        extended.years = years;
+        extended.yearfrequency = years;
+        extended.yearsorted = Object.keys(years).sort();
         return extended;
       });
       self.setState({
-        drums: drums
+        drums: drums.sort(function (a,b) {
+          return Object.keys(b.law_mentions).length - Object.keys(a.law_mentions).length;
+        })
       });
     });
   }
