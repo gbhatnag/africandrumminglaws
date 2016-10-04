@@ -326,32 +326,6 @@ var MapPopup = function (council) {
   );
 };
 
-var Filters = React.createClass({
-  getInitialState: function () {
-    return {
-      year: {},
-      numdrums: 101
-    };
-  },
-
-  render: function () {
-    var self = this;
-    var drumtext = function () {
-      return self.state.numdrums > 1 ? 'drums' : 'drum';
-    };
-    return (
-      <div className="row">
-        <div className="col-xs-12">
-          <a id="filter-btn" href="#" className="btn btn-default btn-block clearfix">
-            <span className="pull-left"><span className="icon-filter"></span> &nbsp; Filter &amp; Sort</span>
-            <span className="pull-right">{self.state.numdrums} {drumtext()}</span>
-          </a>
-        </div>
-      </div>
-    );
-  }
-});
-
 var LawItem = React.createClass({
   render: function () {
     return (
@@ -394,30 +368,34 @@ var DrumItem = React.createClass({
   },
 
   renderLawRow: function (law) {
+    var toTitleCase = function (str) {
+      return str.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
+    };
     return (
       <a href="#" className="list-group-item" key={law.id} data-toggle="modal"
         data-target="#law-modal" onClick={this.openLaw.bind(this, law)}>
+        <h4 className="list-group-item-heading">{toTitleCase(law.council)}</h4>
         <p className="list-group-item-text">{law.citation}</p>
-        <h4 className="list-group-item-heading">{law.title}</h4>
       </a>
     );
   },
 
   render: function () {
     var drum = this.state.drum;
-    var laws = this.state.laws;
     if (!$.isEmptyObject(drum)) {
+      var laws = this.state.laws;
+      var img = drum.picture == "consult spreadsheet" ? '/img/drums/unknown.jpg' : drum.picture;
+      var name = Object.keys(drum.names)[0];
       return (
-        <div>
+        <div className="drum-item-header">
           <div className="row">
             <div className="col-xs-12">
-              <p className="marker center"><span className="selected-item icon-circle"></span></p>
-              <h4 className="center">{Object.keys(drum.names)[0]}</h4>
+              <img className="img-responsive" src={img} />
+              <h2 className="center">{name}</h2>
               <p>
-                The {Object.keys(drum.names)[0]} is a drum that is controlled in
-                the following&nbsp;
-                <strong>{displayPluralized('law', drum.law_mentions)}</strong> across&nbsp;
-                <strong>{displayPluralized('council', drum.council_mentions)}</strong>
+                Controlled by&nbsp;
+                <strong>{displayPluralized('law', drum.law_mentions)}</strong> in&nbsp;
+                <strong>{displayPluralized('council', drum.council_mentions)}</strong>:
               </p>
             </div>
           </div>
@@ -444,7 +422,11 @@ var DrumItem = React.createClass({
       });
       self.setState({
         drum: drum,
-        laws: laws
+        laws: laws.sort(function (a,b) {
+          if (a.council.trim().toLowerCase() < b.council.trim().toLowerCase()) return -1;
+          if (a.council.trim().toLowerCase() > b.council.trim().toLowerCase()) return 1;
+          return 0;
+        })
       });
     });
   },
@@ -472,7 +454,11 @@ var DrumItem = React.createClass({
 var DrumList = React.createClass({
   getInitialState: function () {
     return {
-      drums: []
+      drums: [],   // full set of drums
+      filters: {
+        yearindex: {},
+        numdrums: '-'
+      }
     };
   },
 
@@ -482,7 +468,7 @@ var DrumList = React.createClass({
     };
     var thumb = drum.thumb ? drum.thumb : "/img/drums/unknown-th.jpg";
     return (
-      <Link to={drumLocation} className={drum.yearsorted.join(' ') + ' list-group-item clearfix'} key={drum.id}>
+      <Link to={drumLocation} className={drum.yearsorted.join(' ') + ' drum-item list-group-item clearfix'} key={drum.id}>
         <div className="row">
           <div className="col-xs-4">
             <img src={thumb} className="drum-thumb" />
@@ -493,7 +479,8 @@ var DrumList = React.createClass({
               <strong>{displayPluralized('law', drum.law_mentions)}</strong> in&nbsp;
               <strong>{displayPluralized('council', drum.council_mentions)}</strong>
             </p>
-            <p className="list-group-item-text small">{drum.yearsorted.join(' ')}</p>
+            <p className="list-group-item-text small year-list">{drum.yearsorted.join(' ')}</p>
+            <p className="list-group-item-text small year-list-shadow">{drum.yearsorted.join(' ')}</p>
           </div>
         </div>
       </Link>
@@ -505,24 +492,56 @@ var DrumList = React.createClass({
       <div>
         <div className="row">
           <div className="col-xs-12">
-            <a id="filter-btn" href="#" className="btn btn-default btn-block text-info clearfix">
-              <span className="pull-left"><span className="icon-filter bullet"></span> Filter &amp; Sort</span>
-              <span className="pull-right"><span className="badge"><strong>{this.state.drums.length}</strong></span> drums</span>
-            </a>
+            <div id="filter-btn" className="btn btn-default btn-block text-info clearfix">
+              <span className="pull-left"><span className="icon-filter"></span> Filter &amp; Sort</span>
+              <span className="pull-right"><span className="badge"><strong>{this.state.filters.numdrums}</strong></span> drums</span>
+            </div>
+          </div>
+        </div>
+        <div id="filters" className="row">
+          <div className="col-xs-4 filter-labels">
+            <p className="text-right">Show:</p>
+            <p className="text-right sortbylabel">Sort by:</p>
+          </div>
+          <div className="col-xs-8 filter-values">
+            <p>
+              <select id="filter-year">
+                <option value="all">All Years</option>
+                <option value="1956">1956</option>
+                <option value="1958">1958</option>
+                <option value="1959">1959</option>
+                <option value="1960">1960</option>
+                <option value="1961">1961</option>
+                <option value="1962">1962</option>
+                <option value="1963">1963</option>
+                <option value="1964">1964</option>
+                <option value="1965">1965</option>
+                <option value="1967">1967</option>
+                <option value="1968">1968</option>
+                <option value="1971">1971</option>
+                <option value="1975">1975</option>
+              </select>
+            </p>
+            <p>
+              <select id="sortby">
+                <option value="mentions">Most mentioned</option>
+                <option value="alpha">Name: A-Z</option>
+              </select>
+            </p>
           </div>
         </div>
         <div className="list-group">
           {this.state.drums.map(this.renderDrumItem)}
           <footer>
-              <p className="small"><a className="noline" rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">
-                <img alt="Creative Commons License"
-                  src="https://i.creativecommons.org/l/by-sa/4.0/80x15.png" />
-              </a>&nbsp;<Link to="/">African Drumming Laws</Link>
-              <br/>by <a href="http://revolutionari.es">The Revolutionaries</a>
-                &nbsp;is licensed under a <a rel="license"
-                  href="http://creativecommons.org/licenses/by-sa/4.0/">Creative
-                  Commons Attribution-ShareAlike 4.0 International License</a>.
-              </p>
+            <p className="small"><a className="noline" rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">
+              <img alt="Creative Commons License"
+                src="https://i.creativecommons.org/l/by-sa/4.0/80x15.png" />
+            </a>&nbsp;<Link to="/">African Drumming Laws</Link>
+            <br/>by <a href="http://revolutionari.es">The Revolutionaries</a>
+              &nbsp;is licensed under a <a rel="license"
+                href="http://creativecommons.org/licenses/by-sa/4.0/">Creative
+                Commons Attribution-ShareAlike 4.0 International License</a>.
+            </p>
           </footer>
         </div>
       </div>
@@ -548,11 +567,73 @@ var DrumList = React.createClass({
         extended.yearsorted = Object.keys(years).sort();
         return extended;
       });
-      self.setState({
-        drums: drums.sort(function (a,b) {
-          return Object.keys(b.law_mentions).length - Object.keys(a.law_mentions).length;
-        })
+      drums.sort(function (a,b) {
+        return Object.keys(b.law_mentions).length - Object.keys(a.law_mentions).length;
       });
+      self.setState({
+        drums: drums,
+        filters: {
+          numdrums: drums.length
+        }
+      });
+    });
+  },
+
+  componentDidMount: function () {
+    var self = this;
+    var filterbtn  = $("#filter-btn");
+    var filters    = $("#filters");
+    var filteryear = $("#filter-year");
+    var sortby     = $("#sortby");
+
+    var highlightText = function (src_str, term) {
+      term = term.replace(/(\s+)/,"(<[^>]+>)*$1(<[^>]+>)*");
+      var pattern = new RegExp("("+term+")", "gi");
+
+      src_str = src_str.replace(pattern, "<mark>$1</mark>");
+      src_str = src_str.replace(/(<mark>[^<>]*)((<[^>]+>)+)([^<>]*<\/mark>)/,"$1</mark>$2<mark>$4");
+      return src_str;
+    };
+
+    // convert to chosen and setup event handlers
+    console.log('chosen');
+    filteryear.chosen({
+      width:'180px',
+      search_contains: true
+    }).change(function (ev) {
+      var yr = ev.target.value;
+      var $selected = $(".drum-item");
+      if (yr == "all") {
+        $selected.slideDown();
+      } else {
+        $selected = $(".drum-item." + yr);
+        $selected.slideDown();
+        $(".drum-item:not(." + yr + ")").slideUp();
+      }
+      $selected.each(function () {
+        var $source = $('p.year-list-shadow', this);
+        var $target = $('p.year-list', this);
+        var highlighted = highlightText($source.html(), yr.toString());
+        $target.html(highlighted);
+      });
+      self.setState({
+        filters: {
+          numdrums: $selected.length
+        }
+      });
+
+      // what happens on the map??
+    });
+    sortby.chosen({
+      width:'180px',
+      disable_search: true
+    }).change(function (ev) {
+      console.log('sort change');
+      console.log(ev.target.value);
+    });
+
+    filterbtn.click(function (ev) {
+      filters.slideToggle();
     });
   }
 });

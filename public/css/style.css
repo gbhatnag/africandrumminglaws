@@ -23,16 +23,21 @@ main {padding-top: 81px;}
   position:fixed; top:40px; left:0; z-index:1; height:100%;
   background-color:#2b3e50; overflow:auto; padding-bottom:40px;
 }
-#filter-btn {
-  margin-top:15px;
-}
+#filter-btn {margin-top:15px;}
+#filters {display:none; padding:1em 0 0.5em 0; margin:0 15px; background-color:#272727;}
+#filters .sortbylabel {padding-top:5px;}
+#filters .filter-labels {padding-right:7px;}
+#filters .filter-values {padding-left:8px;}
+
 .indent {padding-left:22px;}
 .marker {font-size:72px; margin-top:27px;}
 span.unselected-item {color:#943b2b; opacity:0.8;}
 span.selected-item {color:#2acd2c; opacity:0.8;}
-span.bullet {display:inline-block; width:18px;}
 img.drum-thumb {width:108px;}
 .drum-list-info {margin-left:1em;}
+
+.drum-item-header img {padding-top:15px;}
+.year-list-shadow {display:none;}
 
 #law-modal {display:none;}
 #law-viewer {width:100%; height:700px;}
