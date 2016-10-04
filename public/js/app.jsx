@@ -477,7 +477,7 @@ var DrumList = React.createClass({
             <h4 className="list-group-item-heading">{Object.keys(drum.names)[0]}</h4>
             <p className="list-group-item-text">
               <strong>{displayPluralized('law', drum.law_mentions)}</strong> in&nbsp;
-              <strong>{displayPluralized('council', drum.council_mentions)}</strong>
+              {displayPluralized('council', drum.council_mentions)}
             </p>
             <p className="list-group-item-text small year-list">{drum.yearsorted.join(' ')}</p>
             <p className="list-group-item-text small year-list-shadow">{drum.yearsorted.join(' ')}</p>
@@ -548,6 +548,18 @@ var DrumList = React.createClass({
     );
   },
 
+  compareByMentions: function (a,b) {
+    return Object.keys(b.law_mentions).length - Object.keys(a.law_mentions).length;
+  },
+
+  compareByName: function (a,b) {
+    var aname = Object.keys(a.names)[0];
+    var bname = Object.keys(b.names)[0];
+    if (aname < bname) return -1;
+    if (aname > bname) return 1;
+    return 0;
+  },
+
   componentWillMount: function () {
     var self = this;
     $.getJSON(app.options.databaseURL + "/drums.json", function (data) {
@@ -567,9 +579,7 @@ var DrumList = React.createClass({
         extended.yearsorted = Object.keys(years).sort();
         return extended;
       });
-      drums.sort(function (a,b) {
-        return Object.keys(b.law_mentions).length - Object.keys(a.law_mentions).length;
-      });
+      drums.sort(self.compareByMentions);
       self.setState({
         drums: drums,
         filters: {
@@ -596,7 +606,6 @@ var DrumList = React.createClass({
     };
 
     // convert to chosen and setup event handlers
-    console.log('chosen');
     filteryear.chosen({
       width:'180px',
       search_contains: true
@@ -628,8 +637,15 @@ var DrumList = React.createClass({
       width:'180px',
       disable_search: true
     }).change(function (ev) {
-      console.log('sort change');
-      console.log(ev.target.value);
+      var drums = self.state.drums;
+      if (ev.target.value == "alpha") {
+        drums.sort(self.compareByName);
+      } else {
+        drums.sort(self.compareByMentions);
+      }
+      self.setState({
+        drums: drums
+      });
     });
 
     filterbtn.click(function (ev) {
@@ -661,7 +677,6 @@ var MapLayout = React.createClass({
     if (adlmap) {
       return;
     }
-    console.log("draw map");
     var self = this;
     mapboxgl.accessToken = 'pk.eyJ1IjoiZ2JoYXRuYWciLCJhIjoiY2lxbDMzeDdnMDAxcGVpa3ZqOWFtNTNpZyJ9.6zSnoYwnb85A8DS107TSnA';
     var map = new mapboxgl.Map({

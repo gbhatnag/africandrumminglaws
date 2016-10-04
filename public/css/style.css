@@ -1,4 +1,4 @@
-body {font-family:'Helvetica Neue', 'Helvetica', 'sans-serif';}
+body {font-family:'Lato', 'sans-serif';}
 main {padding-top: 81px;}
 .navbar-default .navbar-nav>li>a.active {color:#df691a;}
 #map {height:100%; position:fixed; top:40px; left:33.3333333%; padding-left:0;}
