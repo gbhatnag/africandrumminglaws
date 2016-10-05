@@ -101,6 +101,15 @@ var displayPluralized = function (itemStr, collectionObj) {
   return i > 1 ? singular + 's' : singular;
 };
 
+// helper to highlight the given 'term' in the given source string
+var highlightText = function (src_str, term) {
+  term = term.replace(/(\s+)/,"(<[^>]+>)*$1(<[^>]+>)*");
+  var pattern = new RegExp("("+term+")", "gi");
+  src_str = src_str.replace(pattern, "<mark>$1</mark>");
+  src_str = src_str.replace(/(<mark>[^<>]*)((<[^>]+>)+)([^<>]*<\/mark>)/,"$1</mark>$2<mark>$4");
+  return src_str;
+};
+
 // Laws
 var Laws = React.createClass({
   render: function () {
@@ -348,116 +357,6 @@ var CouncilItem = React.createClass({
   }
 });
 
-var DrumItem = React.createClass({
-  lawmodal: {},  // static DOM elements
-
-  getInitialState: function () {
-    return {
-      drum: {},
-      laws: []
-    };
-  },
-
-  openLaw: function (law) {
-    var lawPath = "https://africandrumminglaws.org" + law.pdfPath;
-    this.lawmodal.title.html(law.citation);
-    this.lawmodal.viewer.attr('src', lawPath);
-    this.lawmodal.body.append(this.lawmodal.viewer);
-    this.lawmodal.download.attr('href', lawPath);
-    this.lawmodal.modal.modal('show');
-  },
-
-  renderLawRow: function (law) {
-    var toTitleCase = function (str) {
-      return str.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
-    };
-    return (
-      <a href="#" className="list-group-item" key={law.id} data-toggle="modal"
-        data-target="#law-modal" onClick={this.openLaw.bind(this, law)}>
-        <h4 className="list-group-item-heading">{toTitleCase(law.council)}</h4>
-        <p className="list-group-item-text">{law.citation}</p>
-      </a>
-    );
-  },
-
-  render: function () {
-    var drum = this.state.drum;
-    if (!$.isEmptyObject(drum)) {
-      var laws = this.state.laws;
-      var img = drum.picture == "consult spreadsheet" ? '/img/drums/unknown.jpg' : drum.picture;
-      var name = Object.keys(drum.names)[0];
-      var listloc = {
-        pathname: "/",
-        query: this.props.location.query
-      };
-      return (
-        <div className="drum-item-header">
-          <ul className="pager list-nav">
-            <li className="previous"><Link to={listloc}>&larr; Back</Link></li>
-          </ul>
-          <div className="row">
-            <div className="col-xs-12">
-              <img className="img-responsive" src={img} />
-              <h2 className="center">{name}</h2>
-              <p>
-                Controlled by&nbsp;
-                <strong>{displayPluralized('law', drum.law_mentions)}</strong> in&nbsp;
-                <strong>{displayPluralized('council', drum.council_mentions)}</strong>:
-              </p>
-            </div>
-          </div>
-          <div className="list-group">
-            {this.state.laws.map(this.renderLawRow)}
-          </div>
-        </div>
-      );
-    } else {
-      return (
-        <p className="text-meta">Loading...</p>
-      );
-    }
-  },
-
-  componentWillMount: function () {
-    var self = this;
-    $.getJSON(app.options.databaseURL + "/.json", function (data) {
-      var drum = data.drums[self.props.params.drumId];
-      var citations = Object.keys(drum.law_mentions);
-      var laws = [];
-      citations.forEach(function (citation) {
-        laws.push(data.laws[citation]);
-      });
-      self.setState({
-        drum: drum,
-        laws: laws.sort(function (a,b) {
-          if (a.council.trim().toLowerCase() < b.council.trim().toLowerCase()) return -1;
-          if (a.council.trim().toLowerCase() > b.council.trim().toLowerCase()) return 1;
-          return 0;
-        })
-      });
-    });
-  },
-
-  componentDidMount: function () {
-    var $lawmodal   = $("#law-modal");
-    var lawtitle    = $(".modal-title", $lawmodal);
-    var lawviewer   = $('<iframe id="law-viewer" src="" frameborder="0"></iframe>');
-    var lawdownload = $("#law-download", $lawmodal);
-    var lawbody     = $(".modal-body", $lawmodal);
-    var lawmodal = {
-      modal: $lawmodal,
-      title: lawtitle,
-      body: lawbody,
-      viewer: lawviewer,
-      download: lawdownload
-    };
-    this.lawmodal = lawmodal;
-    $lawmodal.on('hidden.bs.modal', function (ev) {
-      lawbody.empty();
-    });
-  }
-});
-
 var Filter = React.createClass({
   contextTypes: {
     router: React.PropTypes.object.isRequired
@@ -499,19 +398,29 @@ var Filter = React.createClass({
       );
     }
     return (
-      <div id="filters" className="row">
-        <div className="col-xs-4 filter-labels">
-          <p className="text-right">Show:</p>
-          {sortby.label}
+      <div id="filter-container">
+        <div className="row">
+          <div className="col-xs-12">
+            <div id="filter-btn" className="btn btn-default btn-block text-info clearfix">
+              <span className="pull-left"><span className="icon-filter"></span> {this.props.filterlabel}</span>
+              <span className="pull-right"><span className="badge"><strong id="filter-count">-</strong></span> {this.props.listitems}</span>
+            </div>
+          </div>
         </div>
-        <div className="col-xs-8 filter-values">
-          <p>
-            <select id="filter-year">
-              <option value="all">All Years</option>
-              {Filter.yearopts.map(this.renderYearOption)}
-            </select>
-          </p>
-          {sortby.value}
+        <div id="filters" className="row">
+          <div className="col-xs-4 filter-labels">
+            <p className="text-right">From:</p>
+            {sortby.label}
+          </div>
+          <div className="col-xs-8 filter-values">
+            <p>
+              <select id="filter-year">
+                <option value="all">All Years</option>
+                {Filter.yearopts.map(this.renderYearOption)}
+              </select>
+            </p>
+            {sortby.value}
+          </div>
         </div>
       </div>
     );
@@ -538,12 +447,142 @@ var Filter = React.createClass({
       width:'180px',
       disable_search: true
     }).change(function (ev) {
-      self.props.sortBy(ev.target.value);
+      self.props.onSort(ev.target.value);
     });
 
     self._ui.filterbtn.click(function (ev) {
       self._ui.filters.slideToggle();
     });
+  }
+});
+
+var DrumItem = React.createClass({
+  _ui: {},
+
+  getInitialState: function () {
+    return {
+      drum: {},
+      laws: []
+    };
+  },
+
+  openLaw: function (law) {
+    var lawPath = "https://africandrumminglaws.org" + law.pdfPath;
+    this._ui.lawmodal.title.html(law.citation);
+    this._ui.lawmodal.viewer.attr('src', lawPath);
+    this._ui.lawmodal.body.append(this._ui.lawmodal.viewer);
+    this._ui.lawmodal.download.attr('href', lawPath);
+    this._ui.lawmodal.modal.modal('show');
+  },
+
+  renderLawRow: function (law) {
+    var toTitleCase = function (str) {
+      return str.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
+    };
+    return (
+      <a href="#" className={law.date_of_publication + " list-group-item law-item"} key={law.id} data-toggle="modal"
+        data-target="#law-modal" onClick={this.openLaw.bind(this, law)}>
+        <h4 className="list-group-item-heading">{toTitleCase(law.council)}</h4>
+        <p className="list-group-item-text law-citation">{law.citation}</p>
+        <p className="list-group-item-text law-citation-shadow">{law.citation}</p>
+      </a>
+    );
+  },
+
+  render: function () {
+    var drum = this.state.drum;
+    if (!$.isEmptyObject(drum)) {
+      var laws = this.state.laws;
+      var img = drum.picture == "consult spreadsheet" ? '/img/drums/unknown.jpg' : drum.picture;
+      var name = Object.keys(drum.names)[0];
+      var listloc = {
+        pathname: "/",
+        query: this.props.location.query
+      };
+      return (
+        <div className="drum-item-header">
+          <ul className="pager list-nav">
+            <li className="previous"><Link to={listloc}>&larr; Back</Link></li>
+          </ul>
+          <div className="row">
+            <div className="col-xs-12">
+              <img className="img-responsive" src={img} />
+              <h2 className="center">{name}</h2>
+              <p className="list-group-item-text text-center">
+                Controlled by&nbsp;
+                <strong>{displayPluralized('law', drum.law_mentions)}</strong> in&nbsp;
+                {displayPluralized('council', drum.council_mentions)}
+              </p>
+            </div>
+          </div>
+          <Filter location={this.props.location} listitems="laws" filterlabel="Filter" />
+          <div className="list-group">
+            {this.state.laws.map(this.renderLawRow)}
+          </div>
+        </div>
+      );
+    } else {
+      return (
+        <p className="text-meta">Loading...</p>
+      );
+    }
+  },
+
+  componentWillMount: function () {
+    var self = this;
+    $.getJSON(app.options.databaseURL + "/.json", function (data) {
+      var drum = data.drums[self.props.params.drumId];
+      var citations = Object.keys(drum.law_mentions);
+      var laws = [];
+      citations.forEach(function (citation) {
+        laws.push(data.laws[citation]);
+      });
+      self.setState({
+        drum: drum,
+        laws: laws.sort(function (a,b) {
+          if (a.council.trim().toLowerCase() < b.council.trim().toLowerCase()) return -1;
+          if (a.council.trim().toLowerCase() > b.council.trim().toLowerCase()) return 1;
+          return 0;
+        })
+      });
+    });
+  },
+
+  componentDidMount: function () {
+    var self = this;
+    self._ui.lawmodal = {};
+    self._ui.lawmodal.modal    = $("#law-modal");
+    self._ui.lawmodal.title    = $(".modal-title", self._ui.lawmodal.modal);
+    self._ui.lawmodal.viewer   = $('<iframe id="law-viewer" src="" frameborder="0"></iframe>');
+    self._ui.lawmodal.download = $("#law-download", self._ui.lawmodal.modal);
+    self._ui.lawmodal.body     = $(".modal-body", self._ui.lawmodal.modal);
+    self._ui.lawmodal.modal.on('hidden.bs.modal', function (ev) {
+      self._ui.lawmodal.body.empty();
+    });
+  },
+
+  componentDidUpdate: function () {
+    var self = this;
+    var yr = self.props.location.query.yr;
+    var $selected = $(".law-item");
+    if (!yr || typeof(yr) == 'undefined' || yr == "all") {
+      $selected.slideDown();
+      yr = 'All';
+    } else if (Filter.yearopts.indexOf(parseInt(yr)) == -1) {
+      self.context.router.replace(self.props.location.path);
+    } else {
+      $selected = $(".law-item." + yr);
+      $selected.slideDown();
+      $(".law-item:not(." + yr + ")").slideUp();
+    }
+    $selected.each(function () {
+      var $source = $('p.law-citation-shadow', this);
+      var $target = $('p.law-citation', this);
+      var highlighted = highlightText($source.html(), yr);
+      $target.html(highlighted);
+    });
+    $("#filter-count").html($selected.length);
+    Filter.selectYear(yr);
   }
 });
 
@@ -589,15 +628,7 @@ var DrumList = React.createClass({
   render: function () {
     return (
       <div>
-        <div className="row">
-          <div className="col-xs-12">
-            <div id="filter-btn" className="btn btn-default btn-block text-info clearfix">
-              <span className="pull-left"><span className="icon-filter"></span> Filter &amp; Sort</span>
-              <span className="pull-right"><span className="badge"><strong id="drum-count">-</strong></span> drums</span>
-            </div>
-          </div>
-        </div>
-        <Filter sort sortBy={this.sortBy} location={this.props.location} />
+        <Filter sort onSort={this.onSort} location={this.props.location} listitems="drums" filterlabel="Filter &amp; Sort" />
         <div className="list-group">
           {this.state.drums.map(this.renderDrumItem)}
           <footer>
@@ -628,7 +659,7 @@ var DrumList = React.createClass({
     return 0;
   },
 
-  sortBy: function (mode) {
+  onSort: function (mode) {
     var drums = this.state.drums;
     if (mode == "a") {
       drums.sort(this.compareByName);
@@ -669,21 +700,8 @@ var DrumList = React.createClass({
     });
   },
 
-  componentDidMount: function () {
-    this._ui.drumcount = $("#drum-count");
-  },
-
   componentDidUpdate: function () {
     var self = this;
-    var highlightText = function (src_str, term) {
-      term = term.replace(/(\s+)/,"(<[^>]+>)*$1(<[^>]+>)*");
-      var pattern = new RegExp("("+term+")", "gi");
-      src_str = src_str.replace(pattern, "<mark>$1</mark>");
-      src_str = src_str.replace(/(<mark>[^<>]*)((<[^>]+>)+)([^<>]*<\/mark>)/,"$1</mark>$2<mark>$4");
-      return src_str;
-    };
-
-    // update UI based on year query param
     var yr = self.props.location.query.yr;
     var $selected = $(".drum-item");
     if (!yr || typeof(yr) == 'undefined' || yr == "all") {
@@ -703,7 +721,7 @@ var DrumList = React.createClass({
       var highlighted = highlightText($source.html(), yr);
       $target.html(highlighted);
     });
-    self._ui.drumcount.html($selected.length);
+    $("#filter-count").html($selected.length);
     Filter.selectYear(yr);
   }
 });

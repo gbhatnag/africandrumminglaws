@@ -24,7 +24,7 @@ main {padding-top: 81px;}
   background-color:#2b3e50; overflow:auto; padding-bottom:40px;
 }
 #filter-btn {margin-top:15px;}
-#filters {display:none; padding:1em 0 0.5em 0; margin:0 15px; background-color:#272727;}
+#filters {padding:1em 0 0.5em 0; margin:0 15px; background-color:#272727;}
 #filters .sortbylabel {padding-top:5px;}
 #filters .filter-labels {padding-right:7px;}
 #filters .filter-values {padding-left:8px;}
@@ -38,7 +38,7 @@ img.drum-thumb {width:108px;}
 .drum-list-info {margin-left:1em;}
 
 .drum-item-header img {padding-top:15px;}
-.year-list-shadow {display:none;}
+.year-list-shadow, .law-citation-shadow {display:none;}
 
 #law-modal {display:none;}
 #law-viewer {width:100%; height:700px;}
