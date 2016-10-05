@@ -386,8 +386,15 @@ var DrumItem = React.createClass({
       var laws = this.state.laws;
       var img = drum.picture == "consult spreadsheet" ? '/img/drums/unknown.jpg' : drum.picture;
       var name = Object.keys(drum.names)[0];
+      var listloc = {
+        pathname: "/",
+        query: this.props.location.query
+      };
       return (
         <div className="drum-item-header">
+          <ul className="pager list-nav">
+            <li className="previous"><Link to={listloc}>&larr; Back</Link></li>
+          </ul>
           <div className="row">
             <div className="col-xs-12">
               <img className="img-responsive" src={img} />
@@ -451,21 +458,23 @@ var DrumItem = React.createClass({
   }
 });
 
-var DrumList = React.createClass({
+var Filter = React.createClass({
   contextTypes: {
     router: React.PropTypes.object.isRequired
   },
 
-  _filterUI: {
+  statics: {
     yearopts: [1956, 1958, 1959, 1960, 1961, 1962, 1963, 1964, 1965, 1967, 1968,
-      1971, 1975]
+      1971, 1975],
+    selectYear: function (yr) {
+      var filteryear = $("#filter-year");
+      if (filteryear.length == 0) return;
+      $('option:contains(' + yr + ')', '#filter-year').prop('selected', true);
+      $('#filter-year').trigger('chosen:updated');
+    }
   },
 
-  getInitialState: function () {
-    return {
-      drums: []
-    };
-  },
+  _ui: {},
 
   renderYearOption: function (yr) {
     return (
@@ -473,9 +482,88 @@ var DrumList = React.createClass({
     );
   },
 
+  render: function () {
+    var sortby = {
+      label: "",
+      value: ""
+    };
+    if (this.props.sort) {
+      sortby.label = <p className="text-right sortbylabel">Sort by:</p>;
+      sortby.value = (
+        <p>
+          <select id="sortby">
+            <option value="m">Most mentioned</option>
+            <option value="a">Name: A-Z</option>
+          </select>
+        </p>
+      );
+    }
+    return (
+      <div id="filters" className="row">
+        <div className="col-xs-4 filter-labels">
+          <p className="text-right">Show:</p>
+          {sortby.label}
+        </div>
+        <div className="col-xs-8 filter-values">
+          <p>
+            <select id="filter-year">
+              <option value="all">All Years</option>
+              {Filter.yearopts.map(this.renderYearOption)}
+            </select>
+          </p>
+          {sortby.value}
+        </div>
+      </div>
+    );
+  },
+
+  componentDidMount: function () {
+    var self = this;
+    self._ui.filterbtn  = $("#filter-btn");
+    self._ui.filters    = $("#filters");
+    self._ui.filteryear = $("#filter-year");
+    self._ui.sortby     = $("#sortby");
+
+    // convert to chosen and setup event handlers
+    self._ui.filteryear.chosen({
+      width:'180px',
+      search_contains: true
+    }).change(function (ev) {
+      self.context.router.push({
+        ...self.props.location,
+        query: Object.assign({}, self.props.location.query, {yr:ev.target.value})
+      });
+    });
+    self._ui.sortby.chosen({
+      width:'180px',
+      disable_search: true
+    }).change(function (ev) {
+      self.props.sortBy(ev.target.value);
+    });
+
+    self._ui.filterbtn.click(function (ev) {
+      self._ui.filters.slideToggle();
+    });
+  }
+});
+
+var DrumList = React.createClass({
+  contextTypes: {
+    router: React.PropTypes.object.isRequired
+  },
+
+  _ui: {},
+
+  getInitialState: function () {
+    return {
+      drums: []
+    };
+  },
+
   renderDrumItem: function (drum) {
     var drumLocation = {
-      pathname: "/drums/" + drum.id
+      pathname: "/drums/" + drum.id,
+      query: this.props.location.query
     };
     var thumb = drum.thumb ? drum.thumb : "/img/drums/unknown-th.jpg";
     return (
@@ -509,26 +597,7 @@ var DrumList = React.createClass({
             </div>
           </div>
         </div>
-        <div id="filters" className="row">
-          <div className="col-xs-4 filter-labels">
-            <p className="text-right">Show:</p>
-            <p className="text-right sortbylabel">Sort by:</p>
-          </div>
-          <div className="col-xs-8 filter-values">
-            <p>
-              <select id="filter-year">
-                <option value="all">All Years</option>
-                {this._filterUI.yearopts.map(this.renderYearOption)}
-              </select>
-            </p>
-            <p>
-              <select id="sortby">
-                <option value="m">Most mentioned</option>
-                <option value="a">Name: A-Z</option>
-              </select>
-            </p>
-          </div>
-        </div>
+        <Filter sort sortBy={this.sortBy} location={this.props.location} />
         <div className="list-group">
           {this.state.drums.map(this.renderDrumItem)}
           <footer>
@@ -557,6 +626,18 @@ var DrumList = React.createClass({
     if (aname < bname) return -1;
     if (aname > bname) return 1;
     return 0;
+  },
+
+  sortBy: function (mode) {
+    var drums = this.state.drums;
+    if (mode == "a") {
+      drums.sort(this.compareByName);
+    } else {
+      drums.sort(this.compareByMentions);
+    }
+    this.setState({
+      drums: drums
+    });
   },
 
   componentWillMount: function () {
@@ -589,50 +670,7 @@ var DrumList = React.createClass({
   },
 
   componentDidMount: function () {
-    var self = this;
-    self._filterUI.drumcount  = $("#drum-count");
-    self._filterUI.filterbtn  = $("#filter-btn");
-    self._filterUI.filters    = $("#filters");
-    self._filterUI.filteryear = $("#filter-year");
-    self._filterUI.sortby     = $("#sortby");
-
-    var highlightText = function (src_str, term) {
-      term = term.replace(/(\s+)/,"(<[^>]+>)*$1(<[^>]+>)*");
-      var pattern = new RegExp("("+term+")", "gi");
-
-      src_str = src_str.replace(pattern, "<mark>$1</mark>");
-      src_str = src_str.replace(/(<mark>[^<>]*)((<[^>]+>)+)([^<>]*<\/mark>)/,"$1</mark>$2<mark>$4");
-      return src_str;
-    };
-
-    // convert to chosen and setup event handlers
-    self._filterUI.filteryear.chosen({
-      width:'180px',
-      search_contains: true
-    }).change(function (ev) {
-      self.context.router.push({
-        ...self.props.location,
-        query: Object.assign({}, self.props.location.query, {yr:ev.target.value})
-      });
-    });
-    self._filterUI.sortby.chosen({
-      width:'180px',
-      disable_search: true
-    }).change(function (ev) {
-      var drums = self.state.drums;
-      if (ev.target.value == "a") {
-        drums.sort(self.compareByName);
-      } else {
-        drums.sort(self.compareByMentions);
-      }
-      self.setState({
-        drums: drums
-      });
-    });
-
-    self._filterUI.filterbtn.click(function (ev) {
-      self._filterUI.filters.slideToggle();
-    });
+    this._ui.drumcount = $("#drum-count");
   },
 
   componentDidUpdate: function () {
@@ -651,7 +689,7 @@ var DrumList = React.createClass({
     if (!yr || typeof(yr) == 'undefined' || yr == "all") {
       $selected.slideDown();
       yr = 'All';
-    } else if (self._filterUI.yearopts.indexOf(parseInt(yr)) == -1) {
+    } else if (Filter.yearopts.indexOf(parseInt(yr)) == -1) {
       // unknown year
       self.context.router.replace('/');
     } else {
@@ -665,9 +703,8 @@ var DrumList = React.createClass({
       var highlighted = highlightText($source.html(), yr);
       $target.html(highlighted);
     });
-    self._filterUI.drumcount.html($selected.length);
-    $('option:contains(' + yr + ')', self._filterUI.filteryear).prop('selected', true);
-    self._filterUI.filteryear.trigger('chosen:updated');
+    self._ui.drumcount.html($selected.length);
+    Filter.selectYear(yr);
   }
 });
 
