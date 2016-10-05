@@ -452,14 +452,25 @@ var DrumItem = React.createClass({
 });
 
 var DrumList = React.createClass({
+  contextTypes: {
+    router: React.PropTypes.object.isRequired
+  },
+
+  _filterUI: {
+    yearopts: [1956, 1958, 1959, 1960, 1961, 1962, 1963, 1964, 1965, 1967, 1968,
+      1971, 1975]
+  },
+
   getInitialState: function () {
     return {
-      drums: [],   // full set of drums
-      filters: {
-        yearindex: {},
-        numdrums: '-'
-      }
+      drums: []
     };
+  },
+
+  renderYearOption: function (yr) {
+    return (
+      <option key={yr} value={yr.toString()}>{yr}</option>
+    );
   },
 
   renderDrumItem: function (drum) {
@@ -494,7 +505,7 @@ var DrumList = React.createClass({
           <div className="col-xs-12">
             <div id="filter-btn" className="btn btn-default btn-block text-info clearfix">
               <span className="pull-left"><span className="icon-filter"></span> Filter &amp; Sort</span>
-              <span className="pull-right"><span className="badge"><strong>{this.state.filters.numdrums}</strong></span> drums</span>
+              <span className="pull-right"><span className="badge"><strong id="drum-count">-</strong></span> drums</span>
             </div>
           </div>
         </div>
@@ -507,25 +518,13 @@ var DrumList = React.createClass({
             <p>
               <select id="filter-year">
                 <option value="all">All Years</option>
-                <option value="1956">1956</option>
-                <option value="1958">1958</option>
-                <option value="1959">1959</option>
-                <option value="1960">1960</option>
-                <option value="1961">1961</option>
-                <option value="1962">1962</option>
-                <option value="1963">1963</option>
-                <option value="1964">1964</option>
-                <option value="1965">1965</option>
-                <option value="1967">1967</option>
-                <option value="1968">1968</option>
-                <option value="1971">1971</option>
-                <option value="1975">1975</option>
+                {this._filterUI.yearopts.map(this.renderYearOption)}
               </select>
             </p>
             <p>
               <select id="sortby">
-                <option value="mentions">Most mentioned</option>
-                <option value="alpha">Name: A-Z</option>
+                <option value="m">Most mentioned</option>
+                <option value="a">Name: A-Z</option>
               </select>
             </p>
           </div>
@@ -591,10 +590,11 @@ var DrumList = React.createClass({
 
   componentDidMount: function () {
     var self = this;
-    var filterbtn  = $("#filter-btn");
-    var filters    = $("#filters");
-    var filteryear = $("#filter-year");
-    var sortby     = $("#sortby");
+    self._filterUI.drumcount  = $("#drum-count");
+    self._filterUI.filterbtn  = $("#filter-btn");
+    self._filterUI.filters    = $("#filters");
+    self._filterUI.filteryear = $("#filter-year");
+    self._filterUI.sortby     = $("#sortby");
 
     var highlightText = function (src_str, term) {
       term = term.replace(/(\s+)/,"(<[^>]+>)*$1(<[^>]+>)*");
@@ -606,39 +606,21 @@ var DrumList = React.createClass({
     };
 
     // convert to chosen and setup event handlers
-    filteryear.chosen({
+    self._filterUI.filteryear.chosen({
       width:'180px',
       search_contains: true
     }).change(function (ev) {
-      var yr = ev.target.value;
-      var $selected = $(".drum-item");
-      if (yr == "all") {
-        $selected.slideDown();
-      } else {
-        $selected = $(".drum-item." + yr);
-        $selected.slideDown();
-        $(".drum-item:not(." + yr + ")").slideUp();
-      }
-      $selected.each(function () {
-        var $source = $('p.year-list-shadow', this);
-        var $target = $('p.year-list', this);
-        var highlighted = highlightText($source.html(), yr.toString());
-        $target.html(highlighted);
+      self.context.router.push({
+        ...self.props.location,
+        query: Object.assign({}, self.props.location.query, {yr:ev.target.value})
       });
-      self.setState({
-        filters: {
-          numdrums: $selected.length
-        }
-      });
-
-      // what happens on the map??
     });
-    sortby.chosen({
+    self._filterUI.sortby.chosen({
       width:'180px',
       disable_search: true
     }).change(function (ev) {
       var drums = self.state.drums;
-      if (ev.target.value == "alpha") {
+      if (ev.target.value == "a") {
         drums.sort(self.compareByName);
       } else {
         drums.sort(self.compareByMentions);
@@ -648,9 +630,44 @@ var DrumList = React.createClass({
       });
     });
 
-    filterbtn.click(function (ev) {
-      filters.slideToggle();
+    self._filterUI.filterbtn.click(function (ev) {
+      self._filterUI.filters.slideToggle();
     });
+  },
+
+  componentDidUpdate: function () {
+    var self = this;
+    var highlightText = function (src_str, term) {
+      term = term.replace(/(\s+)/,"(<[^>]+>)*$1(<[^>]+>)*");
+      var pattern = new RegExp("("+term+")", "gi");
+      src_str = src_str.replace(pattern, "<mark>$1</mark>");
+      src_str = src_str.replace(/(<mark>[^<>]*)((<[^>]+>)+)([^<>]*<\/mark>)/,"$1</mark>$2<mark>$4");
+      return src_str;
+    };
+
+    // update UI based on year query param
+    var yr = self.props.location.query.yr;
+    var $selected = $(".drum-item");
+    if (!yr || typeof(yr) == 'undefined' || yr == "all") {
+      $selected.slideDown();
+      yr = 'All';
+    } else if (self._filterUI.yearopts.indexOf(parseInt(yr)) == -1) {
+      // unknown year
+      self.context.router.replace('/');
+    } else {
+      $selected = $(".drum-item." + yr);
+      $selected.slideDown();
+      $(".drum-item:not(." + yr + ")").slideUp();
+    }
+    $selected.each(function () {
+      var $source = $('p.year-list-shadow', this);
+      var $target = $('p.year-list', this);
+      var highlighted = highlightText($source.html(), yr);
+      $target.html(highlighted);
+    });
+    self._filterUI.drumcount.html($selected.length);
+    $('option:contains(' + yr + ')', self._filterUI.filteryear).prop('selected', true);
+    self._filterUI.filteryear.trigger('chosen:updated');
   }
 });
 
