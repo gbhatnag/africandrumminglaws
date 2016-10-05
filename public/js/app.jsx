@@ -110,6 +110,11 @@ var highlightText = function (src_str, term) {
   return src_str;
 };
 
+// helper to convert text to title case (i.e. Title Case)
+var toTitleCase = function (str) {
+  return str.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
+};
+
 // Laws
 var Laws = React.createClass({
   render: function () {
@@ -328,7 +333,7 @@ var MapPopup = function (council) {
   }
   return (
     <div className="map-popup">
-      <h6>{council.fullname}</h6>
+      <h4 className="heading">{toTitleCase(council.fullname)}</h4>
       <h5><strong>{council.numdrums} {drumtext}</strong> controlled</h5>
       <h5><strong>{council.numlaws} {lawtext}</strong> published</h5>
     </div>
@@ -476,9 +481,6 @@ var DrumItem = React.createClass({
   },
 
   renderLawRow: function (law) {
-    var toTitleCase = function (str) {
-      return str.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
-    };
     return (
       <a href="#" className={law.date_of_publication + " list-group-item law-item"} key={law.id} data-toggle="modal"
         data-target="#law-modal" onClick={this.openLaw.bind(this, law)}>
@@ -507,7 +509,7 @@ var DrumItem = React.createClass({
           <div className="row">
             <div className="col-xs-12">
               <img className="img-responsive" src={img} />
-              <h2 className="center">{name}</h2>
+              <h2 className="text-center">{name}</h2>
               <p className="list-group-item-text text-center">
                 Controlled by&nbsp;
                 <strong>{displayPluralized('law', drum.law_mentions)}</strong> in&nbsp;
@@ -885,32 +887,45 @@ var MapLayout = React.createClass({
           'icon-opacity': 0.7
         }
       });
+
       var popup = new mapboxgl.Popup({
-        closeButton: false,
+        closeButton: true,
         closeOnClick: false
       });
-      map.on('mousemove', function (ev) {
-        var features = map.queryRenderedFeatures(ev.point, { layers: ['councils'] });
-        map.getCanvas().style.cursor = (features.length) ? 'pointer' : '';
-        if (!features.length) {
-            popup.remove();
-            return;
-        }
-        var feature = features[0];
-        var popupDiv = document.createElement('div');
+      var popupmode = 'hover';
+      var popupDiv = document.getElementById('popup-div');
+      popup.on('close', function (ev) {
+        popupmode = 'hover';
+      });
+      var showPopupForFeature = function (feature) {
         ReactDOM.render(MapPopup(feature.properties), popupDiv);
         popup.setLngLat(feature.geometry.coordinates)
           .setHTML(popupDiv.innerHTML)
           .addTo(map);
+      };
+
+      map.on('mousemove', function (ev) {
+        var features = map.queryRenderedFeatures(ev.point, { layers: ['councils'] });
+        map.getCanvas().style.cursor = (features.length) ? 'pointer' : '';
+        if (popupmode == 'fixed') {
+          return;
+        }
+        if (!features.length) {
+            popup.remove();
+            return;
+        }
+        showPopupForFeature(features[0]);
       });
 
-      // track map movements and events
-      // $(window).resize(logPosition);
-      // map.on("move", logPosition);
-      // map.on("zoom", logPosition);
-      map.on("click", function (data) {
-        logPosition();
-        console.log("clicked at: " + data.lngLat);
+      map.on("click", function (ev) {
+        // logPosition();
+        // console.log("clicked at: " + ev.lngLat);
+        var features = map.queryRenderedFeatures(ev.point, { layers: ['councils'] });
+        if (features.length) {
+          map.flyTo({center: features[0].geometry.coordinates});
+          showPopupForFeature(features[0]);
+          popupmode = 'fixed';
+        }
       });
 
       // // Listen for filter change

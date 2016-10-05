@@ -1,4 +1,4 @@
-body {font-family:'Lato', 'sans-serif';}
+body, .map-popup {font-family:'Lato', 'sans-serif';}
 main {padding-top: 81px;}
 .navbar-default .navbar-nav>li>a.active {color:#df691a;}
 #map {height:100%; position:fixed; top:40px; left:33.3333333%; padding-left:0;}
@@ -17,7 +17,8 @@ main {padding-top: 81px;}
 .mapboxgl-ctrl-compass {display:none !important;}
 .c2 {font-style:italic;}  /* from Google Docs */
 .text-meta {color:#8f8f8f;}
-.center {text-align: center;}
+
+.map-popup .heading {font-weight:300;}
 
 #sidebar {
   position:fixed; top:40px; left:0; z-index:1; height:100%;
