@@ -16,7 +16,7 @@ main {padding-top: 81px;}
 .mapboxgl-popup {color:#1a1818;}
 .mapboxgl-ctrl-compass {display:none !important;}
 .c2 {font-style:italic;}  /* from Google Docs */
-.text-meta {color:#8f8f8f;}
+.text-meta {color:#c2fbd5!important;}
 
 .map-popup .heading {font-weight:300;}
 

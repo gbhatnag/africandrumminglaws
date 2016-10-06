@@ -13,10 +13,7 @@ var app = firebase.initializeApp({
 });
 
 var adlmap = null;
-
-// Create custom event
-var FilterChangeEvent = document.createEvent('Event');
-FilterChangeEvent.initEvent('filterChange', true, true);
+var datacache = {};
 
 // Forms and "models"
 const t = TcombForm;
@@ -99,6 +96,10 @@ var displayPluralized = function (itemStr, collectionObj) {
   var i = Object.keys(collectionObj).length;
   var singular = i + ' ' + itemStr;
   return i > 1 ? singular + 's' : singular;
+};
+var displayCount = function (itemStr, count) {
+  var singular = count + ' ' + itemStr;
+  return count > 1 ? singular + 's' : singular;
 };
 
 // helper to highlight the given 'term' in the given source string
@@ -352,13 +353,151 @@ var LawItem = React.createClass({
 });
 
 var CouncilItem = React.createClass({
-  render: function () {
+  _ui: {},
+
+  getInitialState: function () {
+    return {
+      council: {},
+      drums: [],
+      laws: []
+    };
+  },
+
+  renderDrum: function (drum) {
+    var drumLocation = {
+      pathname: "/drums/" + drum.id,
+      query: this.props.location.query
+    };
+    var thumb = drum.thumb ? drum.thumb : "/img/drums/unknown-th.jpg";
     return (
-      <a href="#" className="list-group-item">
-        <h4 className="list-group-item-heading">Council Item</h4>
-        <p className="list-group-item-text">Something else about dunduns</p>
+      <Link to={drumLocation} className='drum-item list-group-item clearfix' key={drum.id}>
+        <div className="row">
+          <div className="col-xs-4">
+            <img src={thumb} className="drum-thumb" />
+          </div>
+          <div className="col-xs-8">
+            <h4 className="list-group-item-heading">{Object.keys(drum.names)[0]}</h4>
+            <p className="list-group-item-text">
+              <strong>{displayPluralized('law', drum.law_mentions)}</strong> in&nbsp;
+              {displayPluralized('council', drum.council_mentions)}
+            </p>
+          </div>
+        </div>
+      </Link>
+    );
+  },
+
+  openLaw: function (law) {
+    var lawPath = "https://africandrumminglaws.org" + law.pdfPath;
+    this._ui.lawmodal.title.html(law.citation);
+    this._ui.lawmodal.viewer.attr('src', lawPath);
+    this._ui.lawmodal.body.append(this._ui.lawmodal.viewer);
+    this._ui.lawmodal.download.attr('href', lawPath);
+    this._ui.lawmodal.modal.modal('show');
+  },
+
+  renderLaw: function (law) {
+    return (
+      <a href="#" className={law.date_of_publication + " list-group-item law-item"} key={law.id} data-toggle="modal"
+        data-target="#law-modal" onClick={this.openLaw.bind(this, law)}>
+        <h4 className="list-group-item-heading">{toTitleCase(law.council)}</h4>
+        <p className="list-group-item-text law-citation">{law.citation}</p>
       </a>
     );
+  },
+
+  render: function () {
+    if ($.isEmptyObject(this.state.council)) {
+      return (
+        <p>Loading...</p>
+      );
+    } else {
+      return (
+        <div>
+          <ul className="pager list-nav">
+            <li className="previous"><Link to="/">&larr; Drums</Link></li>
+          </ul>
+          <div className="row">
+            <div className="col-xs-12">
+              <h2 className="text-center">{toTitleCase(this.state.council.name)}</h2>
+              <p>
+                The following <strong>{displayCount('law', this.state.laws.length)}</strong>:
+              </p>
+              <div className="list-group">
+                {this.state.laws.map(this.renderLaw)}
+              </div>
+              <p>
+                Controls the following <strong>{displayCount('drum', this.state.drums.length)}</strong>:
+              </p>
+              <div className="list-group">
+                {this.state.drums.map(this.renderDrum)}
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+  },
+
+  handleData: function (councilId) {
+    var council = datacache.councils[councilId];
+    console.log(councilId, 'got council', council);
+    if (!council || typeof(council) == 'undefined') {
+      alert("Whoops. We have a data issue for this council. Please try another one.");
+      return;
+    }
+    var drumIds = Object.keys(council.drums);
+    drumIds.sort(function (a,b) {
+      if (a < b) return -1;
+      if (a > b) return 1;
+      return 0;
+    });
+    var drums = $.map(drumIds, function (drumId) {
+      return datacache.drums[drumId];
+    });
+    var lawIds = Object.keys(council.laws);
+    var laws = $.map(lawIds, function (lawId) {
+      return datacache.laws[lawId];
+    });
+    laws.sort(function (a,b) {
+      var ayear = parseInt(a.date_of_publication);
+      var byear = parseInt(b.date_of_publication);
+      return ayear - byear;
+    });
+    this.setState({
+      council: council,
+      drums: drums,
+      laws: laws
+    });
+  },
+
+  componentWillMount: function () {
+    var self = this;
+    var councilId = self.props.params.councilId;
+    if ($.isEmptyObject(datacache)) {
+      $(document).on("adl:datacached", function (ev) {
+        self.handleData(councilId);
+      });
+    } else {
+      self.handleData(councilId);
+    }
+  },
+
+  componentDidMount: function () {
+    var self = this;
+    self._ui.lawmodal = {};
+    self._ui.lawmodal.modal    = $("#law-modal");
+    self._ui.lawmodal.title    = $(".modal-title", self._ui.lawmodal.modal);
+    self._ui.lawmodal.viewer   = $('<iframe id="law-viewer" src="" frameborder="0"></iframe>');
+    self._ui.lawmodal.download = $("#law-download", self._ui.lawmodal.modal);
+    self._ui.lawmodal.body     = $(".modal-body", self._ui.lawmodal.modal);
+    self._ui.lawmodal.modal.on('hidden.bs.modal', function (ev) {
+      self._ui.lawmodal.body.empty();
+    });
+  },
+
+  componentWillReceiveProps: function (nextProps) {
+    this.handleData(nextProps.params.councilId);
   }
 });
 
@@ -504,7 +643,7 @@ var DrumItem = React.createClass({
       return (
         <div className="drum-item-header">
           <ul className="pager list-nav">
-            <li className="previous"><Link to={listloc}>&larr; Back</Link></li>
+            <li className="previous"><Link to={listloc}>&larr; Drums</Link></li>
           </ul>
           <div className="row">
             <div className="col-xs-12">
@@ -730,6 +869,10 @@ var DrumList = React.createClass({
 
 // Layout components
 var MapLayout = React.createClass({
+  contextTypes: {
+    router: React.PropTypes.object.isRequired
+  },
+
   getInitialState: function () {
     return {
       geo: {}
@@ -747,7 +890,7 @@ var MapLayout = React.createClass({
     );
   },
 
-  componentDidUpdate: function () {
+  componentDidMount: function () {
     if (adlmap) {
       return;
     }
@@ -922,9 +1065,13 @@ var MapLayout = React.createClass({
         // console.log("clicked at: " + ev.lngLat);
         var features = map.queryRenderedFeatures(ev.point, { layers: ['councils'] });
         if (features.length) {
-          map.flyTo({center: features[0].geometry.coordinates});
-          showPopupForFeature(features[0]);
+          var feature = features[0];
+          map.flyTo({center: feature.geometry.coordinates});
+          showPopupForFeature(feature);
           popupmode = 'fixed';
+          self.context.router.push('/councils/' + feature.properties.id);
+          console.log(feature);
+          feature.layer.paint['icon-color'] = "#2B9468";
         }
       });
 
@@ -945,11 +1092,17 @@ var MapLayout = React.createClass({
 
   componentWillMount: function () {
     var self = this;
-    $.getJSON(app.options.databaseURL + "/geo.json", function (data) {
-      self.setState({
-        geo: data
+    if ($.isEmptyObject(datacache)) {
+      $(document).on("adl:datacached", function (ev) {
+        self.setState({
+          geo: datacache.geo
+        });
       });
-    });
+    } else {
+      self.setState({
+        geo: datacache.geo
+      });
+    }
   }
 });
 
@@ -979,10 +1132,13 @@ var Navi = React.createClass({
           <div className="collapse navbar-collapse" id="adl-nav">
             <ul className="nav navbar-nav">
               <li>
-                <a href="#about" id="nav-about" onClick={this.handleModal} className="nav-modal">About</a>
+                <Link to="/" className="text-meta">Western Nigeria</Link>
               </li>
               <li>
                 <a href="#other" id="nav-other" onClick={this.handleModal} className="nav-modal">Other Countries</a>
+              </li>
+              <li>
+                <a href="#about" id="nav-about" onClick={this.handleModal} className="nav-modal">About</a>
               </li>
               <li>
                 <a href="#research" id="nav-research" onClick={this.handleModal} className="nav-modal">Research</a>
@@ -1014,6 +1170,18 @@ var MainLayout = React.createClass({
         </main>
       </div>
     );
+  },
+
+  componentWillMount: function () {
+    $.getJSON(app.options.databaseURL + "/.json", function (data) {
+      datacache = {
+        councils: data.councils,
+        drums: data.drums,
+        geo: data.geo,
+        laws: data.laws
+      };
+      $(document).trigger("adl:datacached");
+    });
   }
 });
 
