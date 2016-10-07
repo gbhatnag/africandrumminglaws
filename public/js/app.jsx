@@ -163,6 +163,7 @@ var LawsPg = React.createClass({
   },
 
   componentWillMount: function () {
+    console.log('LawsPg will mount, ReactFireMixin');
     // bind laws
     var ref = firebase.database().ref("/laws");
     this.bindAsArray(ref, "laws");
@@ -232,6 +233,7 @@ var LawPg = React.createClass({
   },
 
   componentWillMount: function () {
+    console.log('LawPg will mount, ReactFireMixin');
     // bind law
     if (this.props.params.lawId) {
       var ref = firebase.database().ref("/laws/" + this.props.params.lawId);
@@ -472,10 +474,13 @@ var CouncilItem = React.createClass({
   },
 
   componentWillMount: function () {
+    console.log('CouncilItem will mount, datacache');
     var self = this;
     var councilId = self.props.params.councilId;
     if ($.isEmptyObject(datacache)) {
+      console.log("CouncilItem cache miss");
       $(document).on("adl:datacached", function (ev) {
+        console.log("CouncilItem cached callback");
         self.handleData(councilId);
       });
     } else {
@@ -669,24 +674,36 @@ var DrumItem = React.createClass({
     }
   },
 
-  componentWillMount: function () {
-    var self = this;
-    $.getJSON(app.options.databaseURL + "/.json", function (data) {
-      var drum = data.drums[self.props.params.drumId];
-      var citations = Object.keys(drum.law_mentions);
-      var laws = [];
-      citations.forEach(function (citation) {
-        laws.push(data.laws[citation]);
-      });
-      self.setState({
-        drum: drum,
-        laws: laws.sort(function (a,b) {
-          if (a.council.trim().toLowerCase() < b.council.trim().toLowerCase()) return -1;
-          if (a.council.trim().toLowerCase() > b.council.trim().toLowerCase()) return 1;
-          return 0;
-        })
-      });
+  handleData: function (drumId) {
+    var drum = datacache.drums[drumId];
+    var citations = Object.keys(drum.law_mentions);
+    var laws = [];
+    citations.forEach(function (citation) {
+      laws.push(datacache.laws[citation]);
     });
+    this.setState({
+      drum: drum,
+      laws: laws.sort(function (a,b) {
+        if (a.council.trim().toLowerCase() < b.council.trim().toLowerCase()) return -1;
+        if (a.council.trim().toLowerCase() > b.council.trim().toLowerCase()) return 1;
+        return 0;
+      })
+    });
+  },
+
+  componentWillMount: function () {
+    console.log('DrumItem will mount, datacache');
+    var self = this;
+    var drumId = self.props.params.drumId;
+    if ($.isEmptyObject(datacache)) {
+      console.log("DrumItem attempted data load on empty cache");
+      $(document).on("adl:datacached", function (ev) {
+        console.log("DrumItem datacached callback");
+        self.handleData(drumId);
+      });
+    } else {
+      self.handleData(drumId);
+    }
   },
 
   componentDidMount: function () {
@@ -812,36 +829,48 @@ var DrumList = React.createClass({
     });
   },
 
-  componentWillMount: function () {
-    var self = this;
-    $.getJSON(app.options.databaseURL + "/drums.json", function (data) {
-      var drums = $.map(data, function (drum) {
-        var extended = drum;
-        var years = {};
-        var citations = Object.keys(extended.law_mentions);
-        citations.forEach(function (citation) {
-          var yr = citation.split('of')[1];
-          if (years[yr]) {
-            years[yr]++;
-          } else {
-            years[yr] = 1;
-          }
-        });
-        extended.yearfrequency = years;
-        extended.yearsorted = Object.keys(years).sort();
-        return extended;
-      });
-      drums.sort(self.compareByMentions);
-      self.setState({
-        drums: drums,
-        filters: {
-          numdrums: drums.length
+  handleData: function () {
+    var drums = $.map(datacache.drums, function (drum) {
+      var extended = drum;
+      var years = {};
+      var citations = Object.keys(extended.law_mentions);
+      citations.forEach(function (citation) {
+        var yr = citation.split('of')[1];
+        if (years[yr]) {
+          years[yr]++;
+        } else {
+          years[yr] = 1;
         }
       });
+      extended.yearfrequency = years;
+      extended.yearsorted = Object.keys(years).sort();
+      return extended;
+    });
+    drums.sort(this.compareByMentions);
+    this.setState({
+      drums: drums,
+      filters: {
+        numdrums: drums.length
+      }
     });
   },
 
+  componentWillMount: function () {
+    console.log('DrumList will mount, datacache');
+    var self = this;
+    if ($.isEmptyObject(datacache)) {
+      console.log("DrumList attempted data load on empty cache");
+      $(document).on("adl:datacached", function (ev) {
+        console.log("DrumList datacached callback");
+        self.handleData();
+      });
+    } else {
+      self.handleData();
+    }
+  },
+
   componentDidUpdate: function () {
+    console.log('DrumList componentDidUpdate');
     var self = this;
     var yr = self.props.location.query.yr;
     var $selected = $(".drum-item");
@@ -1091,9 +1120,12 @@ var MapLayout = React.createClass({
   },
 
   componentWillMount: function () {
+    console.log('MapLayout will mount, datacache');
     var self = this;
     if ($.isEmptyObject(datacache)) {
+      console.log('MapLayout attempted data load on empty datacache');
       $(document).on("adl:datacached", function (ev) {
+        console.log("MapLayout datacached callback");
         self.setState({
           geo: datacache.geo
         });
@@ -1173,6 +1205,7 @@ var MainLayout = React.createClass({
   },
 
   componentWillMount: function () {
+    console.log('MainLayout will mount, getJSON');
     $.getJSON(app.options.databaseURL + "/.json", function (data) {
       datacache = {
         councils: data.councils,
