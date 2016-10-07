@@ -919,10 +919,12 @@ var MapLayout = React.createClass({
     );
   },
 
-  componentDidMount: function () {
-    if (adlmap) {
-      return;
-    }
+  showLoading: function () {
+    $("#loading-modal").modal({backdrop:'static'});
+  },
+
+  renderMap: function () {
+    $("#loading-modal").modal('hide');
     var self = this;
     mapboxgl.accessToken = 'pk.eyJ1IjoiZ2JoYXRuYWciLCJhIjoiY2lxbDMzeDdnMDAxcGVpa3ZqOWFtNTNpZyJ9.6zSnoYwnb85A8DS107TSnA';
     var map = new mapboxgl.Map({
@@ -1135,6 +1137,25 @@ var MapLayout = React.createClass({
         geo: datacache.geo
       });
     }
+  },
+
+  componentDidMount: function () {
+    if (adlmap) {
+      return;
+    }
+    if ($.isEmptyObject(this.state.geo)) {
+      this.showLoading();
+    } else  {
+      this.renderMap();
+    }
+  },
+
+  componentDidUpdate: function () {
+    if (adlmap) {
+      return;
+    }
+    console.log('map updated');
+    this.renderMap();
   }
 });
 
