@@ -1107,8 +1107,6 @@ var MapLayout = React.createClass({
           showPopupForFeature(feature);
           popupmode = 'fixed';
           self.context.router.push('/councils/' + feature.properties.id);
-          console.log(feature);
-          feature.layer.paint['icon-color'] = "#2B9468";
         }
       });
 
