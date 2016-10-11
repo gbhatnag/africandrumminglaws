@@ -1034,7 +1034,8 @@ var MapLayout = React.createClass({
           "text-transform": "uppercase",
           "text-letter-spacing": 0.1,
           "text-offset": [1,1],
-          "text-anchor": "bottom"
+          "text-anchor": "bottom",
+          "text-max-width": 20
         },
         paint: {
           'text-color': 'rgba(207,207,207,1)'
@@ -1099,7 +1100,7 @@ var MapLayout = React.createClass({
 
       map.on("click", function (ev) {
         // logPosition();
-        // console.log("clicked at: " + ev.lngLat);
+        console.log("clicked at: " + ev.lngLat);
         var features = map.queryRenderedFeatures(ev.point, { layers: ['councils'] });
         if (features.length) {
           var feature = features[0];
