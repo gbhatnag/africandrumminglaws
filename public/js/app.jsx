@@ -343,14 +343,60 @@ var MapPopup = function (council) {
   );
 };
 
-var LawItem = React.createClass({
+var ListLaw = React.createClass({
   render: function () {
+    var law = this.props.law;
     return (
-      <a href="#" className="list-group-item">
-        <h4 className="list-group-item-heading">Law Item</h4>
-        <p className="list-group-item-text">Something else about dunduns</p>
+      <a href="#" className={law.date_of_publication + " list-group-item law-item clearfix"} data-toggle="modal"
+        data-target="#law-modal" onClick={this.props.onClick.bind(null, law)}>
+        <img src={"https://africandrumminglaws.org" + law.thumbPath} className="law-thumb" />
+        <div className="law-details">
+          <h4 className="list-group-item-heading">{toTitleCase(law.council)}</h4>
+          <p className="list-group-item-text law-citation">{law.citation}</p>
+          <p className="list-group-item-text law-citation-shadow">{law.citation}</p>
+        </div>
       </a>
     );
+  }
+});
+
+var ListDrum = React.createClass({
+  render: function () {
+    var drum = this.props.drum;
+    var drumLocation = {
+      pathname: "/drums/" + drum.id,
+      query: this.props.query
+    };
+    var thumb = drum.thumb ? drum.thumb : "/img/drums/unknown-th.jpg";
+    if (drum.yearsorted) {
+      return (
+        <Link to={drumLocation} className={drum.yearsorted.join(' ') + ' drum-item list-group-item clearfix'}>
+          <img src={thumb} className="drum-thumb" />
+          <div className="drum-details">
+            <h4 className="list-group-item-heading">{Object.keys(drum.names)[0]}</h4>
+            <p className="list-group-item-text">
+              <strong>{displayPluralized('law', drum.law_mentions)}</strong> in&nbsp;
+              {displayPluralized('council', drum.council_mentions)}
+            </p>
+            <p className="list-group-item-text small year-list">{drum.yearsorted.join(' ')}</p>
+            <p className="list-group-item-text small year-list-shadow">{drum.yearsorted.join(' ')}</p>
+          </div>
+        </Link>
+      );
+    } else {
+      return (
+        <Link to={drumLocation} className='drum-item list-group-item clearfix'>
+          <img src={thumb} className="drum-thumb" />
+          <div className="drum-details">
+            <h4 className="list-group-item-heading">{Object.keys(drum.names)[0]}</h4>
+            <p className="list-group-item-text">
+              <strong>{displayPluralized('law', drum.law_mentions)}</strong> in&nbsp;
+              {displayPluralized('council', drum.council_mentions)}
+            </p>
+          </div>
+        </Link>
+      );
+    }
   }
 });
 
@@ -366,27 +412,7 @@ var CouncilItem = React.createClass({
   },
 
   renderDrum: function (drum) {
-    var drumLocation = {
-      pathname: "/drums/" + drum.id,
-      query: this.props.location.query
-    };
-    var thumb = drum.thumb ? drum.thumb : "/img/drums/unknown-th.jpg";
-    return (
-      <Link to={drumLocation} className='drum-item list-group-item clearfix' key={drum.id}>
-        <div className="row">
-          <div className="col-xs-4">
-            <img src={thumb} className="drum-thumb" />
-          </div>
-          <div className="col-xs-8">
-            <h4 className="list-group-item-heading">{Object.keys(drum.names)[0]}</h4>
-            <p className="list-group-item-text">
-              <strong>{displayPluralized('law', drum.law_mentions)}</strong> in&nbsp;
-              {displayPluralized('council', drum.council_mentions)}
-            </p>
-          </div>
-        </div>
-      </Link>
-    );
+    return <ListDrum drum={drum} key={drum.id} query={this.props.location.query} />;
   },
 
   openLaw: function (law) {
@@ -399,13 +425,7 @@ var CouncilItem = React.createClass({
   },
 
   renderLaw: function (law) {
-    return (
-      <a href="#" className={law.date_of_publication + " list-group-item law-item"} key={law.id} data-toggle="modal"
-        data-target="#law-modal" onClick={this.openLaw.bind(this, law)}>
-        <h4 className="list-group-item-heading">{toTitleCase(law.council)}</h4>
-        <p className="list-group-item-text law-citation">{law.citation}</p>
-      </a>
-    );
+    return <ListLaw onClick={this.openLaw} law={law} key={law.id} />;
   },
 
   render: function () {
@@ -630,14 +650,7 @@ var DrumItem = React.createClass({
   },
 
   renderLawRow: function (law) {
-    return (
-      <a href="#" className={law.date_of_publication + " list-group-item law-item"} key={law.id} data-toggle="modal"
-        data-target="#law-modal" onClick={this.openLaw.bind(this, law)}>
-        <h4 className="list-group-item-heading">{toTitleCase(law.council)}</h4>
-        <p className="list-group-item-text law-citation">{law.citation}</p>
-        <p className="list-group-item-text law-citation-shadow">{law.citation}</p>
-      </a>
-    );
+    return <ListLaw onClick={this.openLaw} law={law} key={law.id} />;
   },
 
   render: function () {
@@ -651,19 +664,21 @@ var DrumItem = React.createClass({
         query: this.props.location.query
       };
       return (
-        <div className="drum-item-header">
-          <ul className="pager list-nav">
-            <li className="previous"><Link to={listloc}>&larr; Drums</Link></li>
-          </ul>
-          <div className="row">
-            <div className="col-xs-12">
-              <img className="img-responsive" src={img} />
-              <h2 className="text-center">{name}</h2>
-              <p className="list-group-item-text text-center">
-                Controlled by&nbsp;
-                <strong>{displayPluralized('law', drum.law_mentions)}</strong> in&nbsp;
-                {displayPluralized('council', drum.council_mentions)}
-              </p>
+        <div>
+          <div className="drum-item-header">
+            <ul className="pager list-nav">
+              <li className="previous"><Link to={listloc}>&larr; Drums</Link></li>
+            </ul>
+            <div className="row">
+              <div className="col-xs-12">
+                <img className="img-responsive" src={img} />
+                <h2 className="text-center">{name}</h2>
+                <p className="list-group-item-text text-center">
+                  Controlled by&nbsp;
+                  <strong>{displayPluralized('law', drum.law_mentions)}</strong> in&nbsp;
+                  {displayPluralized('council', drum.council_mentions)}
+                </p>
+              </div>
             </div>
           </div>
           <Filter location={this.props.location} listitems="laws" filterlabel="Filter" />
@@ -763,29 +778,7 @@ var DrumList = React.createClass({
   },
 
   renderDrumItem: function (drum) {
-    var drumLocation = {
-      pathname: "/drums/" + drum.id,
-      query: this.props.location.query
-    };
-    var thumb = drum.thumb ? drum.thumb : "/img/drums/unknown-th.jpg";
-    return (
-      <Link to={drumLocation} className={drum.yearsorted.join(' ') + ' drum-item list-group-item clearfix'} key={drum.id}>
-        <div className="row">
-          <div className="col-xs-4">
-            <img src={thumb} className="drum-thumb" />
-          </div>
-          <div className="col-xs-8">
-            <h4 className="list-group-item-heading">{Object.keys(drum.names)[0]}</h4>
-            <p className="list-group-item-text">
-              <strong>{displayPluralized('law', drum.law_mentions)}</strong> in&nbsp;
-              {displayPluralized('council', drum.council_mentions)}
-            </p>
-            <p className="list-group-item-text small year-list">{drum.yearsorted.join(' ')}</p>
-            <p className="list-group-item-text small year-list-shadow">{drum.yearsorted.join(' ')}</p>
-          </div>
-        </div>
-      </Link>
-    );
+    return <ListDrum drum={drum} key={drum.id} query={this.props.location.query} />;
   },
 
   render: function () {
@@ -1199,7 +1192,7 @@ var Navi = React.createClass({
                 <a href="#about" id="nav-about" onClick={this.handleModal} className="nav-modal">About</a>
               </li>
               <li>
-                <a href="#research" id="nav-research" onClick={this.handleModal} className="nav-modal">Research</a>
+                <a href="#research" id="nav-research" onClick={this.handleModal} className="nav-modal">Bibliography</a>
               </li>
               <li>
                 <a href="#credits" id="nav-credits" onClick={this.handleModal} className="nav-modal">Credits</a>
@@ -1251,7 +1244,6 @@ ReactDOM.render((
         <IndexRoute component={DrumList} />
         <Route path="/drums" component={DrumList} />
         <Route path="/drums/:drumId" component={DrumItem} />
-        <Route path="/laws/:lawId" component={LawItem} />
         <Route path="/councils/:councilId" component={CouncilItem} />
       </Route>
       <Route path="/admin" component={AdminPg} />

@@ -35,8 +35,8 @@ main {padding-top: 81px;}
 .marker {font-size:72px; margin-top:27px;}
 span.unselected-item {color:#943b2b; opacity:0.8;}
 span.selected-item {color:#2acd2c; opacity:0.8;}
-img.drum-thumb {width:108px;}
-.drum-list-info {margin-left:1em;}
+img.drum-thumb, img.law-thumb {width:108px; height:72px; float:left; object-fit:cover;}
+.drum-details, .law-details {margin-left:122px;}
 
 .drum-item-header img {padding-top:15px;}
 .year-list-shadow, .law-citation-shadow {display:none;}
