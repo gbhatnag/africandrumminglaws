@@ -443,29 +443,34 @@ var CouncilItem = React.createClass({
 
   handleData: function (councilId) {
     var council = datacache.councils[councilId];
-    console.log(councilId, 'got council', council);
     if (!council || typeof(council) == 'undefined') {
       alert("Whoops. We have a data issue for this council. Please try another one.");
       return;
     }
-    var drumIds = Object.keys(council.drums);
-    drumIds.sort(function (a,b) {
-      if (a < b) return -1;
-      if (a > b) return 1;
-      return 0;
-    });
-    var drums = $.map(drumIds, function (drumId) {
-      return datacache.drums[drumId];
-    });
-    var lawIds = Object.keys(council.laws);
-    var laws = $.map(lawIds, function (lawId) {
-      return datacache.laws[lawId];
-    });
-    laws.sort(function (a,b) {
-      var ayear = parseInt(a.date_of_publication);
-      var byear = parseInt(b.date_of_publication);
-      return ayear - byear;
-    });
+    var drums = [];
+    var laws = [];
+    if (!$.isEmptyObject(council.drums)) {
+      var drumIds = Object.keys(council.drums);
+      drumIds.sort(function (a,b) {
+        if (a < b) return -1;
+        if (a > b) return 1;
+        return 0;
+      });
+      drums = $.map(drumIds, function (drumId) {
+        return datacache.drums[drumId];
+      });
+    }
+    if(!$.isEmptyObject(council.laws)) {
+      var lawIds = Object.keys(council.laws);
+      laws = $.map(lawIds, function (lawId) {
+        return datacache.laws[lawId];
+      });
+      laws.sort(function (a,b) {
+        var ayear = parseInt(a.date_of_publication);
+        var byear = parseInt(b.date_of_publication);
+        return ayear - byear;
+      });
+    }
     this.setState({
       council: council,
       drums: drums,
@@ -938,6 +943,7 @@ var MapLayout = React.createClass({
     map.addControl(new mapboxgl.Navigation());
     map.dragRotate.disable();
     map.touchZoomRotate.disableRotation();
+    map.repaint = true;
     adlmap = map;
 
     var logPosition = function () {
