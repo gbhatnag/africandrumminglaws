@@ -1,24 +1,16 @@
 body, .map-popup {font-family:'Lato', 'sans-serif';}
 main {padding-top: 81px;}
 .navbar-default .navbar-nav>li>a.active {color:#df691a;}
+
 #map {height:100%; position:fixed; top:40px; left:33.3333333%; padding-left:0;}
-.mapboxgl-marker {
-  height:20px; width:20px; cursor:pointer;
-	-moz-border-radius:10px; -webkit-border-radius:10px; border-radius:10px;
-  background-color: rgba(116,57,43,0.5);
-  border:1px solid #74392b;
-}
-.mapboxgl-marker:hover {
-  background-color: rgba(0,88,38,0.5);
-  border:1px solid #005826;
-  font-weight:bold;
-}
 .mapboxgl-popup {color:#1a1818;}
 .mapboxgl-ctrl-compass {display:none !important;}
+.map-popup .heading {font-weight:300;}
+
 .c2 {font-style:italic;}  /* from Google Docs */
 .text-meta {color:#c2fbd5!important;}
-
-.map-popup .heading {font-weight:300;}
+.big.badge {font-size:24px; font-weight:400; padding:5px 9px; border-radius:20px;}
+.headspace {margin-top:22px;}
 
 #sidebar {
   position:fixed; top:40px; left:0; z-index:1; height:100%;
@@ -31,15 +23,19 @@ main {padding-top: 81px;}
 #filters .filter-values {padding-left:8px;}
 .list-nav {margin:15px 0 0;}
 
-.indent {padding-left:22px;}
 .marker {font-size:72px; margin-top:27px;}
 span.unselected-item {color:#943b2b; opacity:0.8;}
 span.selected-item {color:#2acd2c; opacity:0.8;}
 img.drum-thumb, img.law-thumb {width:108px; height:72px; float:left; object-fit:cover;}
 .drum-details, .law-details {margin-left:122px;}
+.indent {font-family: 'icomoon';}
+.indent:before {content: "\e5da"; float:left; font-size:18px; margin-top:1px;}
+.indent .drum-details {font-family:'Lato', 'sans-serif'; margin-left:152px;}
+.indent img {margin-left:12px;}
 
 .drum-item-header img {padding-top:15px;}
 .year-list-shadow, .law-citation-shadow {display:none;}
+.list-group-item-para {margin-bottom:5px;}
 
 #law-modal {display:none;}
 #law-viewer {width:100%; height:700px;}
@@ -50,11 +46,11 @@ footer .well {margin-bottom:0;}
 /* Custom icons via icomoon */
 @font-face {
   font-family: 'icomoon';
-  src:  url('/fonts/icomoon.eot?gdabxr');
-  src:  url('/fonts/icomoon.eot?gdabxr#iefix') format('embedded-opentype'),
-    url('/fonts/icomoon.ttf?gdabxr') format('truetype'),
-    url('/fonts/icomoon.woff?gdabxr') format('woff'),
-    url('/fonts/icomoon.svg?gdabxr#icomoon') format('svg');
+  src:  url('/fonts/icomoon.eot?oebxwi');
+  src:  url('/fonts/icomoon.eot?oebxwi#iefix') format('embedded-opentype'),
+    url('/fonts/icomoon.ttf?oebxwi') format('truetype'),
+    url('/fonts/icomoon.woff?oebxwi') format('woff'),
+    url('/fonts/icomoon.svg?oebxwi#icomoon') format('svg');
   font-weight: normal;
   font-style: normal;
 }
@@ -74,6 +70,9 @@ footer .well {margin-bottom:0;}
   -moz-osx-font-smoothing: grayscale;
 }
 
+.icon-subdirectory_arrow_right:before {
+  content: "\e5da";
+}
 .icon-circle:before {
   content: "\f111";
 }

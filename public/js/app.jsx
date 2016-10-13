@@ -85,10 +85,17 @@ const LawSchemaOptions = {
   }
 };
 
-// helper to clean up citations
-// i.e. "W.R.L.N. 13 of 1956" --> "WRLN13of1956"
+// helpers to clean up citations
+// i.e. "W.R.L.N. 13 of 1956" <--> "WRLN13of1956"
 var sanitizeCitation = function (str) {
   return str.split('.').join('').split(' ').join('');
+};
+var explodeCitationId = function (id) {
+  var parts = id.split('of');
+  var auth = parts[0].slice(0,4);
+  var num = parts[0].slice(4);
+  auth = auth[0] + '.' + auth[1] + '.' + auth[2] + '.' + auth[3] + '.';
+  return auth + ' ' + num + ' of ' + parts[1];
 };
 
 // helper to display pluralized labels
@@ -109,11 +116,6 @@ var highlightText = function (src_str, term) {
   src_str = src_str.replace(pattern, "<mark>$1</mark>");
   src_str = src_str.replace(/(<mark>[^<>]*)((<[^>]+>)+)([^<>]*<\/mark>)/,"$1</mark>$2<mark>$4");
   return src_str;
-};
-
-// helper to convert text to title case (i.e. Title Case)
-var toTitleCase = function (str) {
-  return str.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
 };
 
 // Laws
@@ -336,7 +338,7 @@ var MapPopup = function (council) {
   }
   return (
     <div className="map-popup">
-      <h4 className="heading">{toTitleCase(council.fullname)}</h4>
+      <h4 className="heading">{council.name}</h4>
       <h5><strong>{council.numdrums} {drumtext}</strong> controlled</h5>
       <h5><strong>{council.numlaws} {lawtext}</strong> published</h5>
     </div>
@@ -346,16 +348,37 @@ var MapPopup = function (council) {
 var ListLaw = React.createClass({
   render: function () {
     var law = this.props.law;
+    var links = [];
+    if (law.adopted_from) {
+      var citations = law.adopted_from.map(function (id) {
+        return explodeCitationId(id);
+      });
+      links.push("adopts " + citations.join(', '));
+    }
+    if (law.amends) {
+      var citations = law.amends.map(function (id) {
+        return explodeCitationId(id);
+      });
+      links.push("amends " + citations.join(', '));
+    }
+    if (law.revokes) {
+      var citations = law.revokes.map(function (id) {
+        return explodeCitationId(id);
+      });
+      links.push("revokes " + citations.join(', '));
+    }
+    links = links.join('; ');
     return (
-      <a href="#" className={law.date_of_publication + " list-group-item law-item clearfix"} data-toggle="modal"
-        data-target="#law-modal" onClick={this.props.onClick.bind(null, law)}>
+      <button className={law.date_of_publication + " list-group-item law-item clearfix"}
+        onClick={this.props.onClick.bind(null, law)}>
         <img src={"https://africandrumminglaws.org" + law.thumbPath} className="law-thumb" />
         <div className="law-details">
-          <h4 className="list-group-item-heading">{toTitleCase(law.council)}</h4>
-          <p className="list-group-item-text law-citation">{law.citation}</p>
-          <p className="list-group-item-text law-citation-shadow">{law.citation}</p>
+          <h4 className="list-group-item-heading law-citation">Law {law.citation}</h4>
+          <h4 className="list-group-item-heading law-citation-shadow">Law {law.citation}</h4>
+          <p className="list-group-item-para">from <em>{law.council}</em></p>
+          <p className="list-group-item-text">{links}</p>
         </div>
-      </a>
+      </button>
     );
   }
 });
@@ -370,7 +393,7 @@ var ListDrum = React.createClass({
     var thumb = drum.thumb ? drum.thumb : "/img/drums/unknown-th.jpg";
     if (drum.yearsorted) {
       return (
-        <Link to={drumLocation} className={drum.yearsorted.join(' ') + ' drum-item list-group-item clearfix'}>
+        <Link to={drumLocation} className={drum.yearsorted.join(' ') + ' drum-item list-group-item clearfix ' + this.props.addClass}>
           <img src={thumb} className="drum-thumb" />
           <div className="drum-details">
             <h4 className="list-group-item-heading">{Object.keys(drum.names)[0]}</h4>
@@ -385,7 +408,7 @@ var ListDrum = React.createClass({
       );
     } else {
       return (
-        <Link to={drumLocation} className='drum-item list-group-item clearfix'>
+        <Link to={drumLocation} className={'drum-item list-group-item clearfix ' + this.props.addClass}>
           <img src={thumb} className="drum-thumb" />
           <div className="drum-details">
             <h4 className="list-group-item-heading">{Object.keys(drum.names)[0]}</h4>
@@ -411,21 +434,62 @@ var CouncilItem = React.createClass({
     };
   },
 
+  getDrumcount: function () {
+    if (this.state.council.drums) {
+      return Object.keys(this.state.council.drums).length;
+    } else {
+      var revokes = false;
+      this.state.laws.forEach(function (law) {
+        if (law.revokes) {
+          revokes = true;
+        }
+      });
+      if (revokes) {
+        return 0;
+      } else {
+        return 8;
+      }
+    }
+  },
+
   renderDrum: function (drum) {
-    return <ListDrum drum={drum} key={drum.id} query={this.props.location.query} />;
+    return <ListDrum drum={drum} key={drum.id} query={this.props.location.query} addClass="indent" />;
   },
 
   openLaw: function (law) {
     var lawPath = "https://africandrumminglaws.org" + law.pdfPath;
-    this._ui.lawmodal.title.html(law.citation);
+    this._ui.lawmodal.title.html("Law " + law.citation);
     this._ui.lawmodal.viewer.attr('src', lawPath);
     this._ui.lawmodal.body.append(this._ui.lawmodal.viewer);
     this._ui.lawmodal.download.attr('href', lawPath);
     this._ui.lawmodal.modal.modal('show');
+    return false;
   },
 
   renderLaw: function (law) {
-    return <ListLaw onClick={this.openLaw} law={law} key={law.id} />;
+    var drums = [];
+    if (law.drums) {
+      drums = law.drums.map(function (drum) {
+        return datacache.drums[drum.drum_id];
+      });
+    } else {
+      if (!law.revokes) {
+        drums = datacache.mother.drums;
+      }
+    }
+    drums.sort(function (a,b) {
+      if (a.id < b.id) return -1;
+      if (a.id > b.id) return 1;
+      return 0;
+    });
+    return (
+      <div key={law.id}>
+        <ListLaw onClick={this.openLaw} law={law} />
+        <div className="list-group">
+          {drums.map(this.renderDrum)}
+        </div>
+      </div>
+    );
   },
 
   render: function () {
@@ -435,25 +499,15 @@ var CouncilItem = React.createClass({
       );
     } else {
       return (
-        <div>
-          <ul className="pager list-nav">
-            <li className="previous"><Link to="/">&larr; Drums</Link></li>
-          </ul>
-          <div className="row">
-            <div className="col-xs-12">
-              <h2 className="text-center">{toTitleCase(this.state.council.name)}</h2>
-              <p>
-                The following <strong>{displayCount('law', this.state.laws.length)}</strong>:
-              </p>
-              <div className="list-group">
-                {this.state.laws.map(this.renderLaw)}
-              </div>
-              <p>
-                Controls the following <strong>{displayCount('drum', this.state.drums.length)}</strong>:
-              </p>
-              <div className="list-group">
-                {this.state.drums.map(this.renderDrum)}
-              </div>
+        <div className="row">
+          <div className="col-xs-12">
+            <h2 className="text-center">{this.state.council.name}</h2>
+            <h3 className="text-center">
+              <span className="big badge">{displayCount('law', this.state.laws.length)}</span>
+              &nbsp;controls <span className="big badge">{displayCount('drum', this.getDrumcount())}</span>
+            </h3>
+            <div className="list-group headspace">
+              {this.state.laws.map(this.renderLaw)}
             </div>
           </div>
         </div>
@@ -642,11 +696,12 @@ var DrumItem = React.createClass({
 
   openLaw: function (law) {
     var lawPath = "https://africandrumminglaws.org" + law.pdfPath;
-    this._ui.lawmodal.title.html(law.citation);
+    this._ui.lawmodal.title.html("Law " + law.citation);
     this._ui.lawmodal.viewer.attr('src', lawPath);
     this._ui.lawmodal.body.append(this._ui.lawmodal.viewer);
     this._ui.lawmodal.download.attr('href', lawPath);
     this._ui.lawmodal.modal.modal('show');
+    return false;
   },
 
   renderLawRow: function (law) {
@@ -659,16 +714,9 @@ var DrumItem = React.createClass({
       var laws = this.state.laws;
       var img = drum.picture == "consult spreadsheet" ? '/img/drums/unknown.jpg' : drum.picture;
       var name = Object.keys(drum.names)[0];
-      var listloc = {
-        pathname: "/",
-        query: this.props.location.query
-      };
       return (
         <div>
           <div className="drum-item-header">
-            <ul className="pager list-nav">
-              <li className="previous"><Link to={listloc}>&larr; Drums</Link></li>
-            </ul>
             <div className="row">
               <div className="col-xs-12">
                 <img className="img-responsive" src={img} />
@@ -754,8 +802,8 @@ var DrumItem = React.createClass({
       $(".law-item:not(." + yr + ")").slideUp();
     }
     $selected.each(function () {
-      var $source = $('p.law-citation-shadow', this);
-      var $target = $('p.law-citation', this);
+      var $source = $('.law-citation-shadow', this);
+      var $target = $('.law-citation', this);
       var highlighted = highlightText($source.html(), yr);
       $target.html(highlighted);
     });
@@ -1047,7 +1095,7 @@ var MapLayout = React.createClass({
           'icon-image': 'circle-11',
           'icon-allow-overlap': true,
           'text-optional': true,
-          'text-field': '{shortname}',
+          'text-field': '{label}',
           "text-font": ["HolmenOT Regular"],
           "text-size": 12,
           "text-transform": "uppercase",
@@ -1226,11 +1274,18 @@ var MainLayout = React.createClass({
   componentWillMount: function () {
     console.log('MainLayout will mount, getJSON');
     $.getJSON(app.options.databaseURL + "/.json", function (data) {
+      var mother = {};
+      mother.law = data.laws["WRLN13of1956"];
+      mother.drums = mother.law.drums.map(function (drum) {
+        return data.drums[drum.drum_id];
+      });
+      console.log("MOTHER", mother);
       datacache = {
         councils: data.councils,
         drums: data.drums,
         geo: data.geo,
-        laws: data.laws
+        laws: data.laws,
+        mother: mother
       };
       $(document).trigger("adl:datacached");
     });
