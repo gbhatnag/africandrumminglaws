@@ -521,19 +521,7 @@ var CouncilItem = React.createClass({
       alert("Whoops. We have a data issue for this council. Please try another one.");
       return;
     }
-    var drums = [];
     var laws = [];
-    if (!$.isEmptyObject(council.drums)) {
-      var drumIds = Object.keys(council.drums);
-      drumIds.sort(function (a,b) {
-        if (a < b) return -1;
-        if (a > b) return 1;
-        return 0;
-      });
-      drums = $.map(drumIds, function (drumId) {
-        return datacache.drums[drumId];
-      });
-    }
     if(!$.isEmptyObject(council.laws)) {
       var lawIds = Object.keys(council.laws);
       laws = $.map(lawIds, function (lawId) {
@@ -547,7 +535,6 @@ var CouncilItem = React.createClass({
     }
     this.setState({
       council: council,
-      drums: drums,
       laws: laws
     });
   },
@@ -1279,7 +1266,6 @@ var MainLayout = React.createClass({
       mother.drums = mother.law.drums.map(function (drum) {
         return data.drums[drum.drum_id];
       });
-      console.log("MOTHER", mother);
       datacache = {
         councils: data.councils,
         drums: data.drums,
