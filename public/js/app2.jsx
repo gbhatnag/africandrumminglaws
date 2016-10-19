@@ -377,7 +377,7 @@ var ListLaw = React.createClass({
 var ListDrum = React.createClass({
   render: function () {
     var drum = this.props.drum;
-    var drumLocation = location.pathname + '/drum/' + drum.id;
+    var drumLocation = this.props.basepath + '/drum/' + drum.id;
     var thumb = drum.thumb ? drum.thumb : "/img/drums/unknown-th.jpg";
     if (drum.yearsorted) {
       return (
@@ -450,7 +450,7 @@ var CouncilItem = React.createClass({
   },
 
   renderDrum: function (drum) {
-    return <ListDrum drum={drum} key={drum.id} addClass="indent" />;
+    return <ListDrum drum={drum} key={drum.id} basepath={this.props.basepath} addClass="indent" />;
   },
 
   openLaw: function (law) {
@@ -844,7 +844,7 @@ var DrumList = React.createClass({
   },
 
   renderDrumItem: function (drum) {
-    return <ListDrum drum={drum} key={drum.id} />;
+    return <ListDrum drum={drum} key={drum.id} basepath={this.props.basepath} />;
   },
 
   render: function () {
@@ -1104,12 +1104,12 @@ var Sidebar = React.createClass({
         return (
           self.props.it == 'drum' ?
             <DrumItem yr={self.props.yr} drumId={self.props.id} />
-            : <CouncilItem councilId={self.props.id} />
+            : <CouncilItem councilId={self.props.id} basepath={self.props.basepath} />
         );
       }
       return (
         self.props.ls == 'drums' ?
-          <DrumList yr={self.props.yr} sb={self.props.sb} />
+          <DrumList yr={self.props.yr} sb={self.props.sb} basepath={self.props.basepath} />
           : <LawList />);
     };
     return (
@@ -1324,7 +1324,7 @@ var App = React.createClass({
           map.flyTo({center: feature.geometry.coordinates});
           showPopupForFeature(feature);
           popupmode = 'fixed';
-          self.context.router.push(location.pathname + '/council/' + feature.properties.id);
+          self.context.router.push(self.getBasePath() + '/council/' + feature.properties.id);
         }
       });
 
@@ -1332,6 +1332,10 @@ var App = React.createClass({
         $(document).trigger("adl:maploaded");
       }, 700);
     });
+  },
+
+  getBasePath: function () {
+    return '/' + this.props.params.ls + '/' + this.props.params.yr + '/' + this.props.params.sb;
   },
 
   render: function () {
@@ -1346,7 +1350,7 @@ var App = React.createClass({
         <Navi path={this.props.location.pathname} />
         <Filters ls={ls} yr={yr} sb={sb} path={this.props.location.pathname} />
         <div className="row">
-          <Sidebar ls={ls} yr={yr} sb={sb} it={it} id={id} path={this.props.location.pathname} />
+          <Sidebar ls={ls} yr={yr} sb={sb} it={it} id={id} basepath={this.getBasePath()} />
           <div id="map" className="col-xs-8"></div>
         </div>
       </div>
