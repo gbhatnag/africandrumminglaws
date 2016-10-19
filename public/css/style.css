@@ -1,8 +1,38 @@
 body, .map-popup {font-family:'Lato', 'sans-serif';}
-main {padding-top: 81px;}
+main {padding-top: 40px;}
 .navbar-default .navbar-nav>li>a.active {color:#df691a;}
 
-#map {height:100%; position:fixed; top:40px; left:33.3333333%; padding-left:0;}
+#splash {position:fixed; z-index:1080;}
+#splash-img {
+  position:fixed; height:100%; width:100%; z-index:1040;
+  background: url('/img/splash_640.jpg') no-repeat center center fixed;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+}
+#splash-content {
+  position:fixed; height:100%; width:100%; z-index:1050;
+  background-color: rgba(42,63,80,.8);
+}
+#splash-content #revolution {
+  text-align:right;
+  position:fixed;
+  bottom:20px;
+  right:20px;
+  font-weight:300;
+  font-size:18px;
+}
+#revlogo {
+  display:none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  margin-top: -160px;
+  margin-left: -160px;
+}
+
+#map {height:100%; position:fixed; top:100px; left:33.3333333%; padding-left:0;}
 .mapboxgl-popup {color:#1a1818;}
 .mapboxgl-ctrl-compass {display:none !important;}
 .map-popup .heading {font-weight:300;}
@@ -13,8 +43,8 @@ main {padding-top: 81px;}
 .headspace {margin-top:22px;}
 
 #sidebar {
-  position:fixed; top:40px; left:0; z-index:1; height:100%;
-  background-color:#2b3e50; overflow:auto; padding-bottom:40px;
+  position:fixed; top:100px; left:0; z-index:1; height:100%;
+  background-color:#2b3e50; overflow:auto; padding-bottom:100px;
 }
 #filter-btn {margin-top:15px;}
 #filters {padding:1em 0 0.5em 0; margin:0 15px; background-color:#272727;}
@@ -22,6 +52,9 @@ main {padding-top: 81px;}
 #filters .filter-labels {padding-right:7px;}
 #filters .filter-values {padding-left:8px;}
 .list-nav {margin:15px 0 0;}
+#filter-row {background-color:#272727; padding-top:11px;}
+.chosen-container {width:130px;}
+.chosen-container-single .chosen-single.override {padding:0;}
 
 .marker {font-size:72px; margin-top:27px;}
 span.unselected-item {color:#943b2b; opacity:0.8;}

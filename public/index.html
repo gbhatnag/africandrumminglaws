@@ -14,9 +14,22 @@
   </head>
 
   <body>
+    <div id="splash">
+      <div id="splash-img"></div>
+      <div id="splash-content">
+        <h1>African Drumming Laws <small>Loading...</small></h1>
+        <canvas id="revlogo" width="320" height="320"></canvas>
+        <p id="revolution">
+          REVO<br />
+          LUTION<br />
+          ARIES
+        </p>
+      </div>
+    </div>
+
     <div id="root"></div>
 
-    <div id="research-modal" class="modal">
+    <div id="bibliography-modal" class="modal">
       <div class="modal-dialog modal-lg">
         <div class="modal-content">
           <div class="modal-header">
@@ -163,21 +176,6 @@
       </div>
     </div>
 
-    <div id="loading-modal" class="modal">
-      <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h4 class="modal-title text-center">Loading</h4>
-          </div>
-          <div class="modal-body">
-            <div class="progress progress-striped active">
-              <div class="progress-bar" style="width: 100%"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
     <div id="about-modal" class="modal">
       <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -209,12 +207,12 @@
       </div>
     </div>
 
-    <div id="other-modal" class="modal">
+    <div id="othercountries-modal" class="modal">
       <div class="modal-dialog modal-lg">
         <div class="modal-content">
           <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-            <h4 class="modal-title">West Africa</h4>
+            <h4 class="modal-title">Other West African Laws</h4>
           </div>
           <div class="modal-body">
             <p>Grid of laws from other countries will go here.</p>
@@ -266,7 +264,7 @@
 
     <div id="popup-div"></div>
 
-    <script src="https://fb.me/react-15.3.0.js"></script>
+    <script src="https://fb.me/react-with-addons-15.3.0.js"></script>
     <script src="https://fb.me/react-dom-15.3.0.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/react-router/2.6.1/ReactRouter.js"></script>
     <script src="https://www.gstatic.com/firebasejs/3.2.1/firebase.js"></script>
@@ -277,7 +275,15 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
     <script src='https://api.mapbox.com/mapbox-gl-js/v0.22.0/mapbox-gl.js'></script>
     <script src="/js/chosen.jquery.min.js"></script>
-    <script type="text/babel" src="/js/app.jsx"></script>
+    <script src="https://code.createjs.com/easeljs-0.8.2.min.js"></script>
+    <script src="https://code.createjs.com/tweenjs-0.6.2.min.js"></script>
+    <script src="/js/revolutionaries.logo.js"></script>
+    <script>
+    Revolutionaries.renderLogo('revlogo', function () {
+      $("#revlogo").fadeIn('slow');
+    });
+    </script>
+    <script type="text/babel" src="/js/app2.jsx"></script>
   </body>
 
 </html>

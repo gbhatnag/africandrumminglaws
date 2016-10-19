@@ -4,6 +4,9 @@ var Route = ReactRouter.Route;
 var IndexRoute = ReactRouter.IndexRoute;
 var Link = ReactRouter.Link;
 var browserHistory = ReactRouter.browserHistory;
+var ReactCSSTransitionGroup = React.addons.CSSTransitionGroup;
+
+const BASEFILTER = '/drums/all/n';
 
 var app = firebase.initializeApp({
   apiKey: "AIzaSyBcbMGVPYSdgEi4WZhlxoyyR0-YqwCP0HM",
@@ -12,8 +15,15 @@ var app = firebase.initializeApp({
   storageBucket: "africandrumminglaws.appspot.com",
 });
 
-var adlmap = null;
+var ADLmap = {
+  map: null,
+  reset: function () {
+    if (!this.map) return;
+    this.map.setFilter('councils', ['has', 'id']);
+  }
+};
 var datacache = {};
+var urlcache = '';
 
 // Forms and "models"
 const t = TcombForm;
@@ -118,15 +128,15 @@ var highlightText = function (src_str, term) {
   return src_str;
 };
 
-// Events
-$(document).on("adl:maploaded", function (ev) {
-  console.log("MAP LOADED", adlmap.loaded());
-  setTimeout(function () {
-    console.log("MAP DELAY TO LOAD", adlmap.loaded());
-  }, 500);
-});
+// cache the url we're currently at
+var cacheUrl = function (path) {
+  console.log('click', path);
+  urlcache = path;
+};
 
-// Laws
+/*
+ * ADMIN SECTION
+ */
 var Laws = React.createClass({
   render: function () {
     return (
@@ -252,34 +262,23 @@ var LawPg = React.createClass({
   }
 });
 
-// Static Pages
-var  HomePg = function (props) {
+var DrumsPg = function (props) {
   return (
-    <div className="row">
-      <div className="col-xs-6">
-        <p className="lead">
-          The African Drumming Laws project works with newly discovered laws
-          to understand how and why the British colonial government controlled
-          and criminalized drumming in native African communities.
-        </p>
-      </div>
-      <div className="col-xs-6">
-        <div className="panel panel-success">
-          <div className="panel-heading">
-            <h3 className="panel-title">Data Editing Mode</h3>
-          </div>
-          <div className="panel-body">
-            The African Drumming Laws Explorer is currently being used to
-            extract, organize and validate data pulled from our primary
-            legal documents. Full map, content, filters, visualizations
-            and more are coming soon.
-          </div>
-        </div>
-      </div>
+    <div>
+      <p>Drum data coming soon to a browser near you.</p>
     </div>
   );
 };
 
+var CouncilsPg = function (props) {
+  return (
+    <div>
+      <p>List council data here.</p>
+    </div>
+  );
+};
+
+// Static Pages
 var AboutPg = function (props) {
   return (
     <div>
@@ -311,22 +310,6 @@ var AdminPg = function (props) {
           <Link to="/admin/councils" activeClassName="active">Councils</Link>
         </li>
       </ul>
-    </div>
-  );
-};
-
-var DrumsPg = function (props) {
-  return (
-    <div>
-      <p>Drum data coming soon to a browser near you.</p>
-    </div>
-  );
-};
-
-var CouncilsPg = function (props) {
-  return (
-    <div>
-      <p>List council data here.</p>
     </div>
   );
 };
@@ -394,10 +377,7 @@ var ListLaw = React.createClass({
 var ListDrum = React.createClass({
   render: function () {
     var drum = this.props.drum;
-    var drumLocation = {
-      pathname: "/drums/" + drum.id,
-      query: this.props.query
-    };
+    var drumLocation = location.pathname + '/drum/' + drum.id;
     var thumb = drum.thumb ? drum.thumb : "/img/drums/unknown-th.jpg";
     if (drum.yearsorted) {
       return (
@@ -428,6 +408,15 @@ var ListDrum = React.createClass({
         </Link>
       );
     }
+  },
+
+  componentDidMount: function () {
+    var id = this.props.drum.id;
+    $('#drum-' + id).hover(function (ev) {
+      ADLmap.map.setFilter('councils', ['==', 'filter-'+id, true]);
+    }, function (ev) {
+      ADLmap.reset();
+    });
   }
 });
 
@@ -461,7 +450,7 @@ var CouncilItem = React.createClass({
   },
 
   renderDrum: function (drum) {
-    return <ListDrum drum={drum} key={drum.id} query={this.props.location.query} addClass="indent" />;
+    return <ListDrum drum={drum} key={drum.id} addClass="indent" />;
   },
 
   openLaw: function (law) {
@@ -550,7 +539,7 @@ var CouncilItem = React.createClass({
   componentWillMount: function () {
     console.log('CouncilItem will mount, datacache');
     var self = this;
-    var councilId = self.props.params.councilId;
+    var councilId = self.props.councilId;
     if ($.isEmptyObject(datacache)) {
       console.log("CouncilItem cache miss");
       $(document).on("adl:datacached", function (ev) {
@@ -576,7 +565,7 @@ var CouncilItem = React.createClass({
   },
 
   componentWillReceiveProps: function (nextProps) {
-    this.handleData(nextProps.params.councilId);
+    this.handleData(nextProps.councilId);
   }
 });
 
@@ -696,6 +685,7 @@ var DrumItem = React.createClass({
     this._ui.lawmodal.body.append(this._ui.lawmodal.viewer);
     this._ui.lawmodal.download.attr('href', lawPath);
     this._ui.lawmodal.modal.modal('show');
+    urlcache = location.pathname;
     return false;
   },
 
@@ -716,15 +706,11 @@ var DrumItem = React.createClass({
               <div className="col-xs-12">
                 <img className="img-responsive" src={img} />
                 <h2 className="text-center">{name}</h2>
-                <p className="list-group-item-text text-center">
-                  Controlled by&nbsp;
-                  <strong>{displayPluralized('law', drum.law_mentions)}</strong> in&nbsp;
-                  {displayPluralized('council', drum.council_mentions)}
-                </p>
+                <h3 className="text-center">{displayPluralized('law', drum.law_mentions)}</h3>
+                <h3 className="text-center">{displayPluralized('council', drum.council_mentions)}</h3>
               </div>
             </div>
           </div>
-          <Filter location={this.props.location} listitems="laws" filterlabel="Filter" />
           <div className="list-group">
             {this.state.laws.map(this.renderLawRow)}
           </div>
@@ -754,10 +740,18 @@ var DrumItem = React.createClass({
     });
   },
 
+  filterMap: function () {
+    console.log('need to filter');
+    if (ADLmap.map && ADLmap.map.loaded()) {
+      console.log('ready to filter');
+      ADLmap.map.setFilter('councils', ['==', 'filter-' + this.props.drumId, true]);
+    }
+  },
+
   componentWillMount: function () {
     console.log('DrumItem will mount, datacache');
     var self = this;
-    var drumId = self.props.params.drumId;
+    var drumId = self.props.drumId;
     if ($.isEmptyObject(datacache)) {
       console.log("DrumItem attempted data load on empty cache");
       $(document).on("adl:datacached", function (ev) {
@@ -781,12 +775,13 @@ var DrumItem = React.createClass({
     self._ui.lawmodal.modal.on('hidden.bs.modal', function (ev) {
       self._ui.lawmodal.body.empty();
     });
+    self.filterMap();
   },
 
   componentDidUpdate: function () {
     console.log('DrumItem did update');
     var self = this;
-    var yr = self.props.location.query.yr;
+    var yr = self.props.yr;
     var $selected = $(".law-item");
     if (!yr || typeof(yr) == 'undefined' || yr == "all") {
       $selected.slideDown();
@@ -805,13 +800,33 @@ var DrumItem = React.createClass({
       $target.html(highlighted);
     });
     $("#filter-count").html($selected.length);
-    Filter.selectYear(yr);
+    self.filterMap();
+  }
+});
 
-    // select map areas
-    console.log(adlmap.loaded(), adlmap.repaint);
-    if (adlmap.loaded()) {
-      adlmap.setFilter('councils', ['==', 'filter-'+self.props.params.drumId, true]);
-    }
+var LawList = React.createClass({
+  contextTypes: {
+    router: React.PropTypes.object.isRequired
+  },
+
+  _ui: {},
+
+  getInitialState: function () {
+    return {
+      laws: []
+    };
+  },
+
+  renderDrumItem: function (drum) {
+    return <ListDrum drum={drum} key={drum.id} query={this.props.location.query} />;
+  },
+
+  render: function () {
+    return (
+      <div>
+        <p>Laws list goes here</p>
+      </div>
+    );
   }
 });
 
@@ -829,26 +844,15 @@ var DrumList = React.createClass({
   },
 
   renderDrumItem: function (drum) {
-    return <ListDrum drum={drum} key={drum.id} query={this.props.location.query} />;
+    return <ListDrum drum={drum} key={drum.id} />;
   },
 
   render: function () {
     return (
-      <div>
-        <Filter sort onSort={this.onSort} location={this.props.location} listitems="drums" filterlabel="Filter &amp; Sort" />
+      <div className="sidebar-list">
+        <h3 className="text-center" id="drumlist-count">{displayCount('drum', this.state.drums.length)}</h3>
         <div className="list-group">
           {this.state.drums.map(this.renderDrumItem)}
-          <footer>
-            <p className="small"><a className="noline" rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">
-              <img alt="Creative Commons License"
-                src="https://i.creativecommons.org/l/by-sa/4.0/80x15.png" />
-            </a>&nbsp;<Link to="/">African Drumming Laws</Link>
-            <br/>by <a href="http://revolutionari.es">The Revolutionaries</a>
-              &nbsp;is licensed under a <a rel="license"
-                href="http://creativecommons.org/licenses/by-sa/4.0/">Creative
-                Commons Attribution-ShareAlike 4.0 International License</a>.
-            </p>
-          </footer>
         </div>
       </div>
     );
@@ -866,7 +870,8 @@ var DrumList = React.createClass({
     return 0;
   },
 
-  onSort: function (mode) {
+  sort: function (mode) {
+    console.log('SORT MODE', mode);
     var drums = this.state.drums;
     if (mode == "a") {
       drums.sort(this.compareByName);
@@ -895,13 +900,14 @@ var DrumList = React.createClass({
       extended.yearsorted = Object.keys(years).sort();
       return extended;
     });
-    drums.sort(this.compareByMentions);
+    drums.sort(this.props.sb == 'n' ? this.compareByMentions : this.compareByName);
     this.setState({
-      drums: drums,
-      filters: {
-        numdrums: drums.length
-      }
+      drums: drums
     });
+  },
+
+  updateDrumCount: function (count) {
+    $("#drumlist-count").html(displayCount('drum', count));
   },
 
   componentWillMount: function () {
@@ -916,31 +922,25 @@ var DrumList = React.createClass({
     } else {
       self.handleData();
     }
+    ADLmap.reset();
   },
 
-  componentDidMount: function () {
-    console.log('DrumList did mount');
-    $('.drum-item').hover(function (ev) {
-      console.log('filter ON');
-      var id = this.id.split('-')[1];
-      adlmap.setFilter('==', 'filter-'+id, true);
-    }, function (ev) {
-      console.log('filter OFF');
-      adlmap.setFilter('has', 'id');
-    });
+  componentWillReceiveProps: function (nextProps) {
+    console.log('DrumList componentWillReceiveProps');
+    this.sort(nextProps.sb);
   },
 
   componentDidUpdate: function () {
     console.log('DrumList componentDidUpdate');
     var self = this;
-    var yr = self.props.location.query.yr;
+    var yr = self.props.yr;
     var $selected = $(".drum-item");
     if (!yr || typeof(yr) == 'undefined' || yr == "all") {
       $selected.slideDown();
       yr = 'All';
     } else if (Filter.yearopts.indexOf(parseInt(yr)) == -1) {
       // unknown year
-      self.context.router.replace('/');
+      self.context.router.replace(BASEFILTER);
     } else {
       $selected = $(".drum-item." + yr);
       $selected.slideDown();
@@ -952,40 +952,201 @@ var DrumList = React.createClass({
       var highlighted = highlightText($source.html(), yr);
       $target.html(highlighted);
     });
-    $("#filter-count").html($selected.length);
-    Filter.selectYear(yr);
+    self.updateDrumCount($selected.length);
   }
 });
 
 // Layout components
-var MapLayout = React.createClass({
+var Navi = React.createClass({
+  render: function () {
+    return (
+      <nav className="navbar navbar-default navbar-fixed-top">
+        <div className="container-fluid">
+          <div className="navbar-header">
+            <button type="button" className="navbar-toggle collapsed" data-toggle="collapse" data-target="#adl-nav" aria-expanded="false">
+              <span className="sr-only">Toggle navigation</span>
+              <span className="icon-bar"></span>
+              <span className="icon-bar"></span>
+              <span className="icon-bar"></span>
+            </button>
+            <Link to={BASEFILTER} className="navbar-brand">African Drumming Laws</Link>
+          </div>
+
+          <div className="collapse navbar-collapse" id="adl-nav">
+            <ul className="nav navbar-nav">
+              <li>
+                <Link to="/about" onClick={cacheUrl.bind(this, this.props.path)} activeClassName="active">About</Link>
+              </li>
+              <li>
+                <Link to="/bibliography" onClick={cacheUrl.bind(this, this.props.path)} activeClassName="active">Bibliography</Link>
+              </li>
+              <li>
+                <Link to="/credits" onClick={cacheUrl.bind(this, this.props.path)} activeClassName="active">Credits</Link>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+    );
+  }
+});
+
+var Filters = React.createClass({
   contextTypes: {
     router: React.PropTypes.object.isRequired
   },
 
-  getInitialState: function () {
-    return {
-      geo: {}
-    }
+  statics: {
+    yearopts: [1956, 1958, 1959, 1960, 1961, 1962, 1963, 1964, 1965, 1967, 1968,
+      1971, 1975]
+  },
+
+  renderYearOption: function (yr) {
+    return <option key={yr} value={yr.toString()}>{yr}</option>;
   },
 
   render: function () {
     return (
-      <div className="row">
-        <div id="sidebar" className="col-xs-4">
-          {this.props.children}
+      <div id="filter-row" className="row">
+        <div className="col-xs-3">
+          <p className="text-center">
+            Show:&nbsp;
+            <select id="ls">
+              <option value="drums">Drums</option>
+              <option value="laws">Laws</option>
+            </select>
+          </p>
         </div>
-        <div id="map" className="col-xs-8"></div>
+        <div className="col-xs-3">
+          <p className="text-center">
+            From:&nbsp;
+            <select id="yr">
+              <option value="all">All Years</option>
+              {Filter.yearopts.map(this.renderYearOption)}
+            </select>
+          </p>
+        </div>
+        <div className="col-xs-3">
+          <p className="text-center">
+            Sorted by:&nbsp;
+            <select id="sb">
+              <option value="n">Most mentioned</option>
+              <option value="a">A-Z</option>
+            </select>
+          </p>
+        </div>
+        <div className="col-xs-3">
+          <p className="text-center">
+            In: <span className="chosen-container chosen-container-single"><span className="chosen-single override">Western Nigeria</span></span>
+            <br />
+            <Link to="/othercountries" onClick={cacheUrl.bind(this, this.props.path)}><small>SHOW OTHER COUNTRIES</small></Link>
+          </p>
+        </div>
       </div>
     );
   },
 
-  showLoading: function () {
-    $("#loading-modal").modal({backdrop:'static'});
+  syncSelections: function () {
+    $("#ls").val(this.props.ls);
+    $("#ls").trigger('chosen:updated');
+    $("#yr").val(this.props.yr);
+    $("#yr").trigger('chosen:updated');
+    $("#sb").val(this.props.sb);
+    $("#sb").trigger('chosen:updated');
   },
 
-  renderMap: function () {
-    $("#loading-modal").modal('hide');
+  componentDidMount: function () {
+    var self = this;
+
+    $("#ls").chosen({
+      width:'130px',
+      disable_search: true
+    }).change(function (ev) {
+      self.context.router.push('/' + ev.target.value + '/' + self.props.yr + '/' + self.props.sb);
+    });
+
+    $("#yr").chosen({
+      width:'130px',
+      search_contains: true
+    }).change(function (ev) {
+      self.context.router.push('/' + self.props.ls + '/' + ev.target.value + '/' + self.props.sb);
+    });
+
+    $("#sb").chosen({
+      width:'130px',
+      disable_search: true
+    }).change(function (ev) {
+      self.context.router.push('/' + self.props.ls + '/' + self.props.yr + '/' + ev.target.value);
+    });
+
+    console.log('mount sync');
+    self.syncSelections();
+  },
+
+  componentDidUpdate: function () {
+    console.log('up sync');
+    this.syncSelections();
+  }
+});
+
+var Sidebar = React.createClass({
+  getInitialState: function () {
+    return {
+      maploaded: false
+    };
+  },
+
+  render: function () {
+    var self = this;
+    var getContent = function () {
+      if (!self.state.maploaded) return <h1></h1>
+      if (self.props.it) {
+        return (
+          self.props.it == 'drum' ?
+            <DrumItem yr={self.props.yr} drumId={self.props.id} />
+            : <CouncilItem councilId={self.props.id} />
+        );
+      }
+      return (
+        self.props.ls == 'drums' ?
+          <DrumList yr={self.props.yr} sb={self.props.sb} />
+          : <LawList />);
+    };
+    return (
+      <div id="sidebar" className="col-xs-4">
+        {getContent()}
+        <footer>
+          <p className="small"><a className="noline" rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">
+            <img alt="Creative Commons License"
+              src="https://i.creativecommons.org/l/by-sa/4.0/80x15.png" />
+          </a>&nbsp;<Link to="/">African Drumming Laws</Link>
+          <br/>by <a href="http://revolutionari.es">The Revolutionaries</a>
+            &nbsp;is licensed under a <a rel="license"
+              href="http://creativecommons.org/licenses/by-sa/4.0/">Creative
+              Commons Attribution-ShareAlike 4.0 International License</a>.
+          </p>
+        </footer>
+      </div>
+    );
+  },
+
+  componentWillMount: function () {
+    var self = this;
+    if (!self.state.maploaded) {
+      $(document).on('adl:maploaded', function (ev) {
+        console.log('updating sidebar state', ADLmap.map.loaded());
+        self.setState({maploaded: true});
+      });
+    }
+  }
+});
+
+var App = React.createClass({
+  contextTypes: {
+    router: React.PropTypes.object.isRequired
+  },
+
+  loadMap: function () {
     var self = this;
     mapboxgl.accessToken = 'pk.eyJ1IjoiZ2JoYXRuYWciLCJhIjoiY2lxbDMzeDdnMDAxcGVpa3ZqOWFtNTNpZyJ9.6zSnoYwnb85A8DS107TSnA';
     var map = new mapboxgl.Map({
@@ -1000,7 +1161,7 @@ var MapLayout = React.createClass({
     map.dragRotate.disable();
     map.touchZoomRotate.disableRotation();
     map.repaint = false;
-    adlmap = map;
+    ADLmap.map = map;
 
     var logPosition = function () {
       console.log("center: " + map.getCenter());
@@ -1010,7 +1171,7 @@ var MapLayout = React.createClass({
     map.on("load", function (ev) {
       map.addSource('wnprovinces', {
         type: 'geojson',
-        data: self.state.geo.wnprovinces
+        data: datacache.geo.wnprovinces
       });
       map.addLayer({
         id: 'wnprovinces',
@@ -1028,7 +1189,7 @@ var MapLayout = React.createClass({
 
       map.addSource('wnborder', {
         type: 'geojson',
-        data: self.state.geo.wnborder
+        data: datacache.geo.wnborder
       });
       map.addLayer({
         id: 'wnborder',
@@ -1077,7 +1238,7 @@ var MapLayout = React.createClass({
 
       map.addSource('wnprovincelabels', {
         type: 'geojson',
-        data: self.state.geo.wnprovincelabels
+        data: datacache.geo.wnprovincelabels
       });
       map.addLayer({
         id: 'wnprovincelabels',
@@ -1100,7 +1261,7 @@ var MapLayout = React.createClass({
 
       map.addSource('councils', {
         type: 'geojson',
-        data: self.state.geo.councils
+        data: datacache.geo.councils
       });
       map.addLayer({
         id: 'councils',
@@ -1163,113 +1324,70 @@ var MapLayout = React.createClass({
           map.flyTo({center: feature.geometry.coordinates});
           showPopupForFeature(feature);
           popupmode = 'fixed';
-          self.context.router.push('/councils/' + feature.properties.id);
+          self.context.router.push(location.pathname + '/council/' + feature.properties.id);
         }
       });
 
       setTimeout(function () {
         $(document).trigger("adl:maploaded");
-      }, 500);
+      }, 700);
     });
+  },
+
+  render: function () {
+    var params = this.props.params;
+    var ls = params.ls || 'drums';
+    var yr = params.yr || 'all';
+    var sb = params.sb || 'n';
+    var it = params.it || null;
+    var id = params.id || null;
+    return (
+      <div>
+        <Navi path={this.props.location.pathname} />
+        <Filters ls={ls} yr={yr} sb={sb} path={this.props.location.pathname} />
+        <div className="row">
+          <Sidebar ls={ls} yr={yr} sb={sb} it={it} id={id} path={this.props.location.pathname} />
+          <div id="map" className="col-xs-8"></div>
+        </div>
+      </div>
+    )
+  },
+
+  showModal: function (modalId) {
+    $("#" + modalId + "-modal").modal('show');
   },
 
   componentWillMount: function () {
-    console.log('MapLayout will mount, datacache');
-    var self = this;
-    if ($.isEmptyObject(datacache)) {
-      console.log('MapLayout attempted data load on empty datacache');
-      $(document).on("adl:datacached", function (ev) {
-        console.log("MapLayout datacached callback");
-        self.setState({
-          geo: datacache.geo
-        });
-      });
-    } else {
-      self.setState({
-        geo: datacache.geo
-      });
-    }
+    console.log('params', this.props.params);
   },
 
   componentDidMount: function () {
-    if (adlmap) {
-      return;
+    var self = this;
+    if ($.isEmptyObject(self.props.params)) {
+      self.context.router.replace(BASEFILTER);
     }
-    if ($.isEmptyObject(this.state.geo)) {
-      this.showLoading();
-    } else  {
-      this.renderMap();
-    }
+
+    if (self.props.route.modal) self.showModal(self.props.route.modal);
+    $(".modal").on('hidden.bs.modal', function () {
+      var path = urlcache || '/';
+      self.context.router.replace(path);
+    });
+
+    $(document).on('adl:datacached', function () {
+      self.loadMap();
+    });
+    console.log('app mount');
   },
 
   componentDidUpdate: function () {
-    if (adlmap) {
-      return;
-    }
-    console.log('map updated');
-    this.renderMap();
+    if (this.props.route.modal) this.showModal(this.props.route.modal);
   }
 });
 
-var Navi = React.createClass({
-  handleModal: function (ev) {
-    var content = ev.target.id.split('-')[1];
-    $('.modal').modal('hide');
-    $('#' + content + '-modal').modal('show');
-    $('.nav-modal').removeClass("active");
-    $('#' + ev.target.id).addClass("active");
-  },
-
-  render: function () {
-    return (
-      <nav className="navbar navbar-default navbar-fixed-top">
-        <div className="container-fluid">
-          <div className="navbar-header">
-            <button type="button" className="navbar-toggle collapsed" data-toggle="collapse" data-target="#adl-nav" aria-expanded="false">
-              <span className="sr-only">Toggle navigation</span>
-              <span className="icon-bar"></span>
-              <span className="icon-bar"></span>
-              <span className="icon-bar"></span>
-            </button>
-            <Link to="/" className="navbar-brand">African Drumming Laws</Link>
-          </div>
-
-          <div className="collapse navbar-collapse" id="adl-nav">
-            <ul className="nav navbar-nav">
-              <li>
-                <Link to="/" className="text-meta">Western Nigeria</Link>
-              </li>
-              <li>
-                <a href="#other" id="nav-other" onClick={this.handleModal} className="nav-modal">Other Countries</a>
-              </li>
-              <li>
-                <a href="#about" id="nav-about" onClick={this.handleModal} className="nav-modal">About</a>
-              </li>
-              <li>
-                <a href="#research" id="nav-research" onClick={this.handleModal} className="nav-modal">Bibliography</a>
-              </li>
-              <li>
-                <a href="#credits" id="nav-credits" onClick={this.handleModal} className="nav-modal">Credits</a>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </nav>
-    );
-  },
-
-  componentDidMount: function () {
-    $('.modal').on('hidden.bs.modal', function (ev) {
-      $('.nav-modal').removeClass("active");
-    });
-  }
-});
-
-var MainLayout = React.createClass({
+var Viewport = React.createClass({
   render: function () {
     return (
       <div>
-        <Navi />
         <main className="container-fluid">
           {this.props.children}
         </main>
@@ -1278,7 +1396,7 @@ var MainLayout = React.createClass({
   },
 
   componentWillMount: function () {
-    console.log('MainLayout will mount, getJSON');
+    console.log('Viewport will mount, getJSON');
     $.getJSON(app.options.databaseURL + "/.json", function (data) {
       var mother = {};
       mother.law = data.laws["WRLN13of1956"];
@@ -1294,18 +1412,25 @@ var MainLayout = React.createClass({
       };
       $(document).trigger("adl:datacached");
     });
+  },
+
+  componentDidMount: function () {
+    $(document).on("adl:maploaded", function (ev) {
+      $("#splash").fadeOut(1000);
+    });
   }
 });
 
 ReactDOM.render((
   <Router history={browserHistory}>
-    <Route component={MainLayout}>
-      <Route path="/" component={MapLayout}>
-        <IndexRoute component={DrumList} />
-        <Route path="/drums" component={DrumList} />
-        <Route path="/drums/:drumId" component={DrumItem} />
-        <Route path="/councils/:councilId" component={CouncilItem} />
-      </Route>
+    <Route path="/" component={Viewport}>
+      <IndexRoute component={App} />
+      <Route path="/:ls/:yr/:sb" component={App} />
+      <Route path="/:ls/:yr/:sb/:it/:id" component={App} />
+      <Route path="/about" component={App} modal="about" />
+      <Route path="/bibliography" component={App} modal="bibliography" />
+      <Route path="/credits" component={App} modal="credits" />
+      <Route path="/othercountries" component={App} modal="othercountries" />
       <Route path="/admin" component={AdminPg} />
       <Route path="/admin/drums" component={DrumsPg} />
       <Route path="/admin/councils" component={DrumsPg} />
