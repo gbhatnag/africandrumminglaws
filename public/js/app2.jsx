@@ -360,7 +360,7 @@ var ListLaw = React.createClass({
     }
     links = links.join('; ');
     return (
-      <button className={law.date_of_publication + " list-group-item law-item clearfix"}
+      <button className={law.date_of_publication + " list-group-item law-deed clearfix"}
         onClick={this.props.onClick.bind(null, law)}>
         <img src={"https://africandrumminglaws.org" + law.thumbPath} className="law-thumb" />
         <div className="law-details">
@@ -782,16 +782,16 @@ var DrumItem = React.createClass({
     console.log('DrumItem did update');
     var self = this;
     var yr = self.props.yr;
-    var $selected = $(".law-item");
+    var $selected = $(".law-deed");
     if (!yr || typeof(yr) == 'undefined' || yr == "all") {
       $selected.slideDown();
       yr = 'All';
     } else if (Filter.yearopts.indexOf(parseInt(yr)) == -1) {
       self.context.router.replace(self.props.location.path);
     } else {
-      $selected = $(".law-item." + yr);
+      $selected = $(".law-deed." + yr);
       $selected.slideDown();
-      $(".law-item:not(." + yr + ")").slideUp();
+      $(".law-deed:not(." + yr + ")").slideUp();
     }
     $selected.each(function () {
       var $source = $('.law-citation-shadow', this);
@@ -969,11 +969,13 @@ var Navi = React.createClass({
               <span className="icon-bar"></span>
               <span className="icon-bar"></span>
             </button>
-            <Link to={BASEFILTER} className="navbar-brand">African Drumming Laws</Link>
+            <Link to={BASEFILTER} id="logomark" className="navbar-brand">
+              <img src="/img/adl-logo-text.png" />
+            </Link>
           </div>
 
           <div className="collapse navbar-collapse" id="adl-nav">
-            <ul className="nav navbar-nav">
+            <ul className="nav navbar-nav navbar-right">
               <li>
                 <Link to="/about" onClick={cacheUrl.bind(this, this.props.path)} activeClassName="active">About</Link>
               </li>

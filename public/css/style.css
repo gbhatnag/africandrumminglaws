@@ -1,8 +1,13 @@
-body, .map-popup {font-family:'Lato', 'sans-serif';}
-main {padding-top: 40px;}
+body, .map-popup {font-family:'Lato', 'sans-serif'; font-weight:300;}
+main {padding-top:70px;}
 .navbar-default .navbar-nav>li>a.active {color:#df691a;}
+#logomark {height:70px;}
+#logomark > img {height:55px;}
+.navbar-nav>li>a {line-height:20px; font-size:14px; padding:25px 15px;}
+#filter-row {background-color:#272727; padding-top:11px; height:70px;}
 
 #splash {position:fixed; z-index:1080;}
+#splash-logo {margin:9.5px 15px; height:55px;}
 #splash-img {
   position:fixed; height:100%; width:100%; z-index:1040;
   background: url('/img/splash_640.jpg') no-repeat center center fixed;
@@ -32,7 +37,9 @@ main {padding-top: 40px;}
   margin-left: -160px;
 }
 
-#map {height:100%; position:fixed; top:100px; left:33.3333333%; padding-left:0;}
+#video-container {margin:24px 0;}
+
+#map {height:100%; position:fixed; top:140px; left:33.3333333%; padding-left:0;}
 .mapboxgl-popup {color:#1a1818;}
 .mapboxgl-ctrl-compass {display:none !important;}
 .map-popup .heading {font-weight:300;}
@@ -43,8 +50,8 @@ main {padding-top: 40px;}
 .headspace {margin-top:22px;}
 
 #sidebar {
-  position:fixed; top:100px; left:0; z-index:1; height:100%;
-  background-color:#2b3e50; overflow:auto; padding-bottom:100px;
+  position:fixed; top:140px; left:0; z-index:1; height:100%;
+  background-color:#2b3e50; overflow:auto; padding-bottom:140px;
 }
 #filter-btn {margin-top:15px;}
 #filters {padding:1em 0 0.5em 0; margin:0 15px; background-color:#272727;}
@@ -52,7 +59,6 @@ main {padding-top: 40px;}
 #filters .filter-labels {padding-right:7px;}
 #filters .filter-values {padding-left:8px;}
 .list-nav {margin:15px 0 0;}
-#filter-row {background-color:#272727; padding-top:11px;}
 .chosen-container {width:130px;}
 .chosen-container-single .chosen-single.override {padding:0;}
 
@@ -75,6 +81,46 @@ img.drum-thumb, img.law-thumb {width:108px; height:72px; float:left; object-fit:
 
 footer {margin-top:4em;}
 footer .well {margin-bottom:0;}
+
+#laws-grid {
+  margin-top: 1em;
+}
+#laws-grid:after {
+  content: '';
+  display: block;
+  clear: both;
+}
+.law-item {
+  float: left;
+  width: 160px;
+  padding: 0 0 10px 0;
+  margin: 0 0 20px 0;
+}
+.law-item:hover {
+  background-color: rgba(194,251,213,0.25);
+}
+a.block, a.block:hover, a.block:visited {
+  color: white;
+  display: block;
+  text-decoration: none;
+}
+.law-item img.law-thumb {
+  width: 160px;
+  height: 204px;
+  display: block;
+  padding: 10px;
+  margin: 0;
+}
+.law-item p {
+  font-size: 14px;
+  padding: 0 10px;
+  margin:0;
+  line-height: 1.5;
+}
+.law-item p.law-name {
+  font-weight: 300;
+  font-size: 18px;
+}
 
 /* Custom icons via icomoon */
 @font-face {
