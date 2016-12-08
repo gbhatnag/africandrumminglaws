@@ -5,6 +5,7 @@ main {padding-top:70px;}
 #logomark > img {height:55px;}
 .navbar-nav>li>a {line-height:20px; font-size:14px; padding:25px 15px;}
 #filter-row {background-color:#272727; padding-top:11px; height:70px;}
+.block-center {display:block; margin:0 auto; padding-bottom:7px;}
 
 #splash {position:fixed; z-index:1080;}
 #splash-logo {margin:9.5px 15px; height:55px;}
