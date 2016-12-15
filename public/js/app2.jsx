@@ -130,7 +130,7 @@ var highlightText = function (src_str, term) {
 
 // cache the url we're currently at
 var cacheUrl = function (path) {
-  console.log('click', path);
+  //console.log('click', path);
   urlcache = path;
 };
 
@@ -183,7 +183,7 @@ var LawsPg = React.createClass({
   },
 
   componentWillMount: function () {
-    console.log('LawsPg will mount, ReactFireMixin');
+    //console.log('LawsPg will mount, ReactFireMixin');
     // bind laws
     var ref = firebase.database().ref("/laws");
     this.bindAsArray(ref, "laws");
@@ -253,7 +253,7 @@ var LawPg = React.createClass({
   },
 
   componentWillMount: function () {
-    console.log('LawPg will mount, ReactFireMixin');
+    // console.log('LawPg will mount, ReactFireMixin');
     // bind law
     if (this.props.params.lawId) {
       var ref = firebase.database().ref("/laws/" + this.props.params.lawId);
@@ -537,13 +537,13 @@ var CouncilItem = React.createClass({
   },
 
   componentWillMount: function () {
-    console.log('CouncilItem will mount, datacache');
+    // console.log('CouncilItem will mount, datacache');
     var self = this;
     var councilId = self.props.councilId;
     if ($.isEmptyObject(datacache)) {
-      console.log("CouncilItem cache miss");
+      // console.log("CouncilItem cache miss");
       $(document).on("adl:datacached", function (ev) {
-        console.log("CouncilItem cached callback");
+        // console.log("CouncilItem cached callback");
         self.handleData(councilId);
       });
     } else {
@@ -741,21 +741,21 @@ var DrumItem = React.createClass({
   },
 
   filterMap: function () {
-    console.log('need to filter');
+    // console.log('need to filter');
     if (ADLmap.map && ADLmap.map.loaded()) {
-      console.log('ready to filter');
+      // console.log('ready to filter');
       ADLmap.map.setFilter('councils', ['==', 'filter-' + this.props.drumId, true]);
     }
   },
 
   componentWillMount: function () {
-    console.log('DrumItem will mount, datacache');
+    // console.log('DrumItem will mount, datacache');
     var self = this;
     var drumId = self.props.drumId;
     if ($.isEmptyObject(datacache)) {
-      console.log("DrumItem attempted data load on empty cache");
+      // console.log("DrumItem attempted data load on empty cache");
       $(document).on("adl:datacached", function (ev) {
-        console.log("DrumItem datacached callback");
+        // console.log("DrumItem datacached callback");
         self.handleData(drumId);
       });
     } else {
@@ -764,7 +764,7 @@ var DrumItem = React.createClass({
   },
 
   componentDidMount: function () {
-    console.log('DrumItem did mount');
+    // console.log('DrumItem did mount');
     var self = this;
     self._ui.lawmodal = {};
     self._ui.lawmodal.modal    = $("#law-modal");
@@ -779,7 +779,7 @@ var DrumItem = React.createClass({
   },
 
   componentDidUpdate: function () {
-    console.log('DrumItem did update');
+    // console.log('DrumItem did update');
     var self = this;
     var yr = self.props.yr;
     var $selected = $(".law-deed");
@@ -871,7 +871,7 @@ var DrumList = React.createClass({
   },
 
   sort: function (mode) {
-    console.log('SORT MODE', mode);
+    // console.log('SORT MODE', mode);
     var drums = this.state.drums;
     if (mode == "a") {
       drums.sort(this.compareByName);
@@ -911,12 +911,12 @@ var DrumList = React.createClass({
   },
 
   componentWillMount: function () {
-    console.log('DrumList will mount, datacache');
+    // console.log('DrumList will mount, datacache');
     var self = this;
     if ($.isEmptyObject(datacache)) {
-      console.log("DrumList attempted data load on empty cache");
+      // console.log("DrumList attempted data load on empty cache");
       $(document).on("adl:datacached", function (ev) {
-        console.log("DrumList datacached callback");
+        // console.log("DrumList datacached callback");
         self.handleData();
       });
     } else {
@@ -926,12 +926,12 @@ var DrumList = React.createClass({
   },
 
   componentWillReceiveProps: function (nextProps) {
-    console.log('DrumList componentWillReceiveProps');
+    // console.log('DrumList componentWillReceiveProps');
     this.sort(nextProps.sb);
   },
 
   componentDidUpdate: function () {
-    console.log('DrumList componentDidUpdate');
+    // console.log('DrumList componentDidUpdate');
     var self = this;
     var yr = self.props.yr;
     var $selected = $(".drum-item");
@@ -1081,12 +1081,12 @@ var Filters = React.createClass({
       self.context.router.push('/' + self.props.ls + '/' + self.props.yr + '/' + ev.target.value);
     });
 
-    console.log('mount sync');
+    // console.log('mount sync');
     self.syncSelections();
   },
 
   componentDidUpdate: function () {
-    console.log('up sync');
+    // console.log('up sync');
     this.syncSelections();
   }
 });
@@ -1136,7 +1136,7 @@ var Sidebar = React.createClass({
     var self = this;
     if (!self.state.maploaded) {
       $(document).on('adl:maploaded', function (ev) {
-        console.log('updating sidebar state', ADLmap.map.loaded());
+        // console.log('updating sidebar state', ADLmap.map.loaded());
         self.setState({maploaded: true});
       });
     }
@@ -1319,7 +1319,7 @@ var App = React.createClass({
 
       map.on("click", function (ev) {
         // logPosition();
-        console.log("clicked at: " + ev.lngLat);
+        // console.log("clicked at: " + ev.lngLat);
         var features = map.queryRenderedFeatures(ev.point, { layers: ['councils'] });
         if (features.length) {
           var feature = features[0];
@@ -1364,7 +1364,7 @@ var App = React.createClass({
   },
 
   componentWillMount: function () {
-    console.log('params', this.props.params);
+    // console.log('params', this.props.params);
   },
 
   componentDidMount: function () {
@@ -1382,7 +1382,7 @@ var App = React.createClass({
     $(document).on('adl:datacached', function () {
       self.loadMap();
     });
-    console.log('app mount');
+    // console.log('app mount');
   },
 
   componentDidUpdate: function () {
@@ -1402,7 +1402,7 @@ var Viewport = React.createClass({
   },
 
   componentWillMount: function () {
-    console.log('Viewport will mount, getJSON');
+    // console.log('Viewport will mount, getJSON');
     $.getJSON(app.options.databaseURL + "/.json", function (data) {
       var mother = {};
       mother.law = data.laws["WRLN13of1956"];
