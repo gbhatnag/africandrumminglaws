@@ -960,35 +960,40 @@ var DrumList = React.createClass({
 var Navi = React.createClass({
   render: function () {
     return (
-      <nav className="navbar navbar-default navbar-fixed-top">
-        <div className="container-fluid">
-          <div className="navbar-header">
-            <button type="button" className="navbar-toggle collapsed" data-toggle="collapse" data-target="#adl-nav" aria-expanded="false">
-              <span className="sr-only">Toggle navigation</span>
-              <span className="icon-bar"></span>
-              <span className="icon-bar"></span>
-              <span className="icon-bar"></span>
-            </button>
-            <Link to={BASEFILTER} id="logomark" className="navbar-brand">
-              <img src="/img/adl-logo-text.png" />
-            </Link>
-          </div>
-
-          <div className="collapse navbar-collapse" id="adl-nav">
-            <ul className="nav navbar-nav navbar-right">
-              <li>
-                <Link to="/about" onClick={cacheUrl.bind(this, this.props.path)} activeClassName="active">About</Link>
-              </li>
-              <li>
-                <Link to="/bibliography" onClick={cacheUrl.bind(this, this.props.path)} activeClassName="active">Bibliography</Link>
-              </li>
-              <li>
-                <Link to="/credits" onClick={cacheUrl.bind(this, this.props.path)} activeClassName="active">Credits</Link>
-              </li>
-            </ul>
-          </div>
+      <div>
+        <div id="underconstruction" className="alert alert-warning">
+          <p className="text-center"><img className="pad-right" src="/img/cone.png" /> Under active construction <img className="pad-left" src="/img/cone.png" /></p>
         </div>
-      </nav>
+        <nav className="navbar navbar-default navbar-fixed-top">
+          <div className="container-fluid">
+            <div className="navbar-header">
+              <button type="button" className="navbar-toggle collapsed" data-toggle="collapse" data-target="#adl-nav" aria-expanded="false">
+                <span className="sr-only">Toggle navigation</span>
+                <span className="icon-bar"></span>
+                <span className="icon-bar"></span>
+                <span className="icon-bar"></span>
+              </button>
+              <Link to={BASEFILTER} id="logomark" className="navbar-brand">
+                <img src="/img/adl-logo-text.png" />
+              </Link>
+            </div>
+
+            <div className="collapse navbar-collapse" id="adl-nav">
+              <ul className="nav navbar-nav navbar-right">
+                <li>
+                  <Link to="/about" onClick={cacheUrl.bind(this, this.props.path)} activeClassName="active">About</Link>
+                </li>
+                <li>
+                  <Link to="/bibliography" onClick={cacheUrl.bind(this, this.props.path)} activeClassName="active">Bibliography</Link>
+                </li>
+                <li>
+                  <Link to="/credits" onClick={cacheUrl.bind(this, this.props.path)} activeClassName="active">Credits</Link>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </nav>
+      </div>
     );
   }
 });
